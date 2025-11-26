@@ -9,7 +9,7 @@ import { Calendar, AlertTriangle, RefreshCw, Sparkles, Star, Zap, Flame } from '
 
 const Home: React.FC = () => {
   const navigate = useNavigate();
-  const { userState, daysInApp, startChallenge, resetChallenge } = useGame();
+  const { userState, startChallenge, resetChallenge } = useGame();
   
   // Progress Calculation
   const nextLevelXp = LEVEL_THRESHOLDS[userState.level] || 10000;
@@ -91,33 +91,17 @@ const Home: React.FC = () => {
             </div>
          </div>
 
-         {/* Stats Row */}
-         <div className="grid grid-cols-2 gap-4">
-            {/* Streak Card */}
-            <div className="bg-gradient-to-r from-orange-500 to-red-500 rounded-3xl p-4 text-white relative overflow-hidden shadow-lg shadow-orange-200 flex items-center justify-between">
-                <div className="relative z-10">
-                   <h3 className="text-3xl font-black">{userState.streak}</h3>
-                   <p className="text-xs font-bold opacity-90">Sequência</p>
-                </div>
-                <div className="relative z-10">
-                    <Flame fill="currentColor" size={32} />
-                </div>
-                {/* Decoration */}
-                <Flame className="absolute right-[-10px] bottom-[-15px] opacity-20 w-24 h-24 rotate-12" />
+         {/* Streak Card - Full Width */}
+         <div className="bg-gradient-to-r from-orange-500 to-red-500 rounded-3xl p-4 text-white relative overflow-hidden shadow-lg shadow-orange-200 flex items-center justify-between">
+            <div className="relative z-10">
+               <h3 className="text-3xl font-black">{userState.streak}</h3>
+               <p className="text-xs font-bold opacity-90">Sequência (Dias)</p>
             </div>
-
-            {/* Days App Card */}
-            <div className="bg-gradient-to-r from-[#00B4D8] to-[#0096C7] rounded-3xl p-4 text-white relative overflow-hidden shadow-lg shadow-sky-200 flex items-center justify-between">
-                <div className="relative z-10">
-                   <h3 className="text-3xl font-black">{daysInApp}</h3> 
-                   <p className="text-xs font-bold opacity-90">Dias no App</p>
-                </div>
-                <div className="relative z-10">
-                    <Calendar size={32} />
-                </div>
-                {/* Decoration */}
-                <Calendar className="absolute right-[-10px] bottom-[-15px] opacity-20 w-24 h-24 rotate-12" />
+            <div className="relative z-10">
+                <Flame fill="currentColor" size={32} />
             </div>
+            {/* Decoration */}
+            <Flame className="absolute right-[-10px] bottom-[-15px] opacity-20 w-24 h-24 rotate-12" />
          </div>
       </div>
 

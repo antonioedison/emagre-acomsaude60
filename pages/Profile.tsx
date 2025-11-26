@@ -2,11 +2,11 @@
 import React, { useState } from 'react';
 import { useGame } from '../context/GameContext';
 import { LEVEL_THRESHOLDS, AVATARS, SHOP_ITEMS } from '../constants';
-import { Edit2, TrendingUp, Calendar, Sparkles, Check, Lock, Store } from 'lucide-react';
+import { Edit2, TrendingUp, Calendar, Sparkles, Check, Lock, Store, LogOut } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 const Profile: React.FC = () => {
-  const { userState, updateProfile, buyItem, equipItem, themeConfig } = useGame();
+  const { userState, updateProfile, buyItem, equipItem, themeConfig, logout } = useGame();
   const nextLevelXp = LEVEL_THRESHOLDS[userState.level] || 10000;
   
   const [isEditing, setIsEditing] = useState(false);
@@ -30,18 +30,15 @@ const Profile: React.FC = () => {
   const activeFrame = SHOP_ITEMS.find(i => i.id === activeFrameId);
   const frameClass = activeFrame ? activeFrame.value : '';
 
-  // Helper para visuais dos itens (Simulando os prints)
+  // Helper para visuais dos itens
   const getItemVisual = (id: string) => {
     switch(id) {
-        // Temas
         case 'theme_default': return { bg: 'bg-brand-aqua', icon: '💧' };
         case 'theme_coral': return { bg: 'bg-slate-500', icon: '🌅' };
         case 'theme_purple': return { bg: 'bg-blue-500', icon: '💜' };
-        // Confetes
         case 'confetti_default': return { bg: 'bg-blue-300', icon: '🎉' };
         case 'confetti_neon': return { bg: 'bg-slate-700', icon: '✨' };
         case 'confetti_rainbow': return { bg: 'bg-blue-500', icon: '🌈' };
-        // Aros
         case 'frame_none': return { bg: 'bg-gray-200', icon: '🚫' };
         case 'frame_gold': return { bg: 'bg-purple-500', icon: '👑' };
         case 'frame_diamond': return { bg: 'bg-orange-400', icon: '💎' };
@@ -49,7 +46,6 @@ const Profile: React.FC = () => {
     }
   };
 
-  // Helper para cores de raridade
   const getRarityBadge = (rarity: string) => {
     switch(rarity) {
         case 'common': return 'bg-gray-500 text-white';
@@ -75,6 +71,15 @@ const Profile: React.FC = () => {
       
       {/* --- PROFILE HEADER --- */}
       <div className={`relative bg-white rounded-3xl shadow-lg border border-gray-100 p-6 text-center overflow-visible`}>
+         {/* Logout Button */}
+         <button 
+            onClick={logout}
+            className="absolute top-4 left-4 text-gray-400 hover:text-red-500 transition-colors"
+            title="Sair"
+         >
+            <LogOut size={18} />
+         </button>
+
          {/* Edit Button */}
          <button 
             onClick={() => setIsEditing(!isEditing)}
@@ -101,7 +106,7 @@ const Profile: React.FC = () => {
             </motion.button>
          </div>
 
-         {/* Avatar Selector Grid (Conditional) */}
+         {/* Avatar Selector */}
          {showAvatarSelector && (
              <motion.div 
                 initial={{ opacity: 0, y: -10 }}
@@ -114,9 +119,7 @@ const Profile: React.FC = () => {
                         onClick={() => handleAvatarSelect(av.id)}
                         className={`relative aspect-square rounded-2xl overflow-hidden hover:bg-gray-100 transition-colors flex items-end justify-center bg-gray-50 ${userState.avatar === av.id ? 'ring-2 ring-brand-aqua' : ''}`}
                      >
-                         {/* Body */}
                          <div className={`w-[80%] h-[45%] rounded-t-xl ${av.shirtColor} absolute bottom-0`}></div>
-                         {/* Head */}
                          <div className="text-3xl relative z-10 mb-2">{av.icon}</div>
                      </button>
                  ))}
@@ -181,10 +184,8 @@ const Profile: React.FC = () => {
         </div>
       </div>
 
-      {/* --- NEW SHOP LAYOUT --- */}
+      {/* --- SHOP --- */}
       <div className="pt-2">
-        
-        {/* Balance Banner */}
         <div className="bg-[#FF7F50] text-white p-6 rounded-3xl shadow-xl relative overflow-hidden flex items-center justify-between mb-8">
             <div className="relative z-10">
                 <span className="text-orange-100 font-medium text-sm">Seu saldo</span>
@@ -195,12 +196,10 @@ const Profile: React.FC = () => {
             <div className="relative z-10">
                 <Sparkles size={32} className="text-yellow-200 animate-pulse" />
             </div>
-            {/* Decoration */}
             <div className="absolute -top-10 -right-10 w-40 h-40 bg-white opacity-10 rounded-full" />
             <div className="absolute top-10 left-10 w-10 h-10 bg-white opacity-10 rounded-full" />
         </div>
 
-        {/* Categories Loop */}
         {[
             { id: 'theme', label: 'Temas', icon: '🎨' },
             { id: 'confetti', label: 'Confetes', icon: '🎉' },
@@ -225,7 +224,6 @@ const Profile: React.FC = () => {
                                 onClick={() => isOwned ? equipItem(item) : buyItem(item)}
                                 className="bg-white rounded-3xl shadow-sm border border-gray-100 overflow-hidden flex flex-col text-left group relative"
                             >
-                                {/* Preview Image Area */}
                                 <div className={`h-28 ${visual.bg} flex items-center justify-center text-4xl relative`}>
                                     {visual.icon}
                                     {isEquipped && (
@@ -235,7 +233,6 @@ const Profile: React.FC = () => {
                                     )}
                                 </div>
 
-                                {/* Content Area */}
                                 <div className="p-4 flex flex-col flex-1 justify-between">
                                     <div>
                                         <span className={`${getRarityBadge(item.rarity)} text-[10px] font-bold px-2 py-0.5 rounded-full uppercase`}>
@@ -268,7 +265,6 @@ const Profile: React.FC = () => {
             </div>
         ))}
 
-        {/* Earn More Banner */}
         <div className="bg-emerald-50 border border-emerald-100 p-6 rounded-3xl text-center shadow-sm">
             <div className="w-12 h-12 bg-emerald-100 rounded-full flex items-center justify-center mx-auto mb-3 text-emerald-600">
                 <Store size={24} />

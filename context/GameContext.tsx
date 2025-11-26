@@ -6,7 +6,8 @@ import { LEVEL_THRESHOLDS, SHOP_ITEMS } from '../constants';
 
 interface GameContextType {
   userState: UserState;
-  daysInApp: number; // Calculated value
+  daysInApp: number;
+  isAuthenticated: boolean;
   addXp: (amount: number) => void;
   completeSection: (sectionId: string, xp: number) => void;
   updateStats: (stats: UserState['stats']) => void;
@@ -18,6 +19,9 @@ interface GameContextType {
   buyItem: (item: ShopItem) => void;
   equipItem: (item: ShopItem) => void;
   themeConfig: any;
+  login: (email: string, pass: string) => Promise<boolean>;
+  register: (name: string, email: string, pass: string) => Promise<boolean>;
+  logout: () => void;
 }
 
 const defaultState: UserState = {
@@ -48,54 +52,94 @@ const defaultState: UserState = {
 const GameContext = createContext<GameContextType | undefined>(undefined);
 
 export const GameProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
-  const [userState, setUserState] = useState<UserState>(() => {
-    const saved = localStorage.getItem('emagrecer-app-state');
-    const parsed = saved ? JSON.parse(saved) : defaultState;
-    
-    // Migrations
-    if (!parsed.challenge) parsed.challenge = defaultState.challenge;
-    if (parsed.coins === undefined) parsed.coins = parsed.xp; 
-    if (!parsed.inventory) parsed.inventory = defaultState.inventory;
-    if (!parsed.activeCosmetics) parsed.activeCosmetics = defaultState.activeCosmetics;
-    if (!parsed.avatar) parsed.avatar = defaultState.avatar;
-    if (!parsed.installDate) parsed.installDate = defaultState.installDate; // Set install date for existing users
-    
-    // Ensure name defaults to Motivado if it was the old default or empty
-    if (parsed.name === 'Viajante' || !parsed.name) parsed.name = 'Motivado';
+  const [currentUserEmail, setCurrentUserEmail] = useState<string | null>(localStorage.getItem('app_current_session'));
+  const [userState, setUserState] = useState<UserState>(defaultState);
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(!!currentUserEmail);
 
-    return parsed;
-  });
+  // Load User Data when Session Changes
+  useEffect(() => {
+    if (currentUserEmail) {
+      const savedData = localStorage.getItem(`app_data_${currentUserEmail}`);
+      if (savedData) {
+        setUserState(JSON.parse(savedData));
+      } else {
+        setUserState(defaultState); // Should happen on fresh register
+      }
+      setIsAuthenticated(true);
+    } else {
+      setIsAuthenticated(false);
+      setUserState(defaultState);
+    }
+  }, [currentUserEmail]);
 
-  // Calculate Days in App (1-365 Cycle)
+  // Save User Data whenever state changes (if logged in)
+  useEffect(() => {
+    if (currentUserEmail && isAuthenticated) {
+      localStorage.setItem(`app_data_${currentUserEmail}`, JSON.stringify(userState));
+    }
+  }, [userState, currentUserEmail, isAuthenticated]);
+
+  // AUTH ACTIONS
+  const login = async (email: string, pass: string): Promise<boolean> => {
+    const usersStr = localStorage.getItem('app_users');
+    const users = usersStr ? JSON.parse(usersStr) : {};
+    
+    if (users[email] && users[email].password === pass) {
+      localStorage.setItem('app_current_session', email);
+      setCurrentUserEmail(email);
+      return true;
+    }
+    return false;
+  };
+
+  const register = async (name: string, email: string, pass: string): Promise<boolean> => {
+    const usersStr = localStorage.getItem('app_users');
+    const users = usersStr ? JSON.parse(usersStr) : {};
+
+    if (users[email]) {
+      return false; // User exists
+    }
+
+    // Save Creds
+    users[email] = { password: pass, name: name };
+    localStorage.setItem('app_users', JSON.stringify(users));
+
+    // Initialize Data
+    const newState = { ...defaultState, name: name, installDate: new Date().toISOString().split('T')[0] };
+    localStorage.setItem(`app_data_${email}`, JSON.stringify(newState));
+
+    // Auto Login
+    localStorage.setItem('app_current_session', email);
+    setCurrentUserEmail(email);
+    setUserState(newState);
+    return true;
+  };
+
+  const logout = () => {
+    localStorage.removeItem('app_current_session');
+    setCurrentUserEmail(null);
+    setIsAuthenticated(false);
+  };
+
+  // --- GAME LOGIC ---
+
   const calculateDaysInApp = () => {
     const start = new Date(userState.installDate);
     const now = new Date();
-    
-    // Reset time part to ensure we count full days based on date, not exact time
     start.setHours(0,0,0,0);
     now.setHours(0,0,0,0);
-
     const diffTime = now.getTime() - start.getTime();
     const totalDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
-    
-    // Ensure non-negative (safeDays is 0 for first day, 1 for second, etc.)
     const safeDays = Math.max(0, totalDays);
-    
-    // Cycle 1-365 logic:
-    // Day 0 (Install) -> (0 % 365) + 1 = 1
-    // Day 364 -> (364 % 365) + 1 = 365
-    // Day 365 -> (365 % 365) + 1 = 1 (Reset)
     return (safeDays % 365) + 1;
   };
 
   const daysInApp = calculateDaysInApp();
 
-  useEffect(() => {
-    localStorage.setItem('emagrecer-app-state', JSON.stringify(userState));
-  }, [userState]);
-
   // Daily Streak Logic
   useEffect(() => {
+    if (!isAuthenticated) return;
+    
     const today = new Date().toISOString().split('T')[0];
     if (userState.lastLoginDate !== today) {
       const lastDate = new Date(userState.lastLoginDate);
@@ -113,10 +157,10 @@ export const GameProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
           ...prev, 
           lastLoginDate: today, 
           streak: newStreak,
-          water: { ...prev.water, current: 0 } // Reset water daily
+          water: { ...prev.water, current: 0 } 
       }));
     }
-  }, []);
+  }, [isAuthenticated, userState.lastLoginDate]);
 
   const getThemeConfig = () => {
     const themeId = userState.activeCosmetics.theme;
@@ -158,16 +202,8 @@ export const GameProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
             alert(`PARABÉNS! VOCÊ SUBIU PARA O NÍVEL ${newLevel}!`);
         }, 500);
       }
-
-      // Add coins equal to XP gained (1:1 ratio)
       const newCoins = (prev.coins || 0) + amount;
-
-      return {
-        ...prev,
-        xp: newXp,
-        coins: newCoins,
-        level: newLevel
-      };
+      return { ...prev, xp: newXp, coins: newCoins, level: newLevel };
     });
   };
 
@@ -191,10 +227,7 @@ export const GameProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const updateWater = (current: number, goal?: number) => {
     setUserState(prev => ({
         ...prev,
-        water: {
-            current: current,
-            goal: goal !== undefined ? goal : prev.water.goal
-        }
+        water: { current: current, goal: goal !== undefined ? goal : prev.water.goal }
     }));
   };
 
@@ -215,12 +248,7 @@ export const GameProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     if (window.confirm("Tem certeza que deseja reiniciar o desafio dos 60 dias? Todo o progresso será perdido.")) {
         setUserState(prev => ({
             ...prev,
-            challenge: {
-                isActive: false,
-                startDate: null,
-                startWeight: 0,
-                targetLoss: 0
-            }
+            challenge: { isActive: false, startDate: null, startWeight: 0, targetLoss: 0 }
         }));
     }
   };
@@ -248,18 +276,15 @@ export const GameProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     if (userState.inventory.includes(item.id)) {
         setUserState(prev => ({
             ...prev,
-            activeCosmetics: {
-                ...prev.activeCosmetics,
-                [item.type]: item.id
-            }
+            activeCosmetics: { ...prev.activeCosmetics, [item.type]: item.id }
         }));
     }
   };
 
   return (
     <GameContext.Provider value={{ 
-        userState, daysInApp, addXp, completeSection, updateStats, updateWater, triggerConfetti, 
-        startChallenge, resetChallenge, updateProfile, buyItem, equipItem,
+        userState, daysInApp, isAuthenticated, addXp, completeSection, updateStats, updateWater, triggerConfetti, 
+        startChallenge, resetChallenge, updateProfile, buyItem, equipItem, login, register, logout,
         themeConfig: getThemeConfig()
     }}>
       {children}
