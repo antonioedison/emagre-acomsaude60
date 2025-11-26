@@ -9,7 +9,7 @@ export const AVATARS = [
   { id: 'woman_blonde', icon: '👱‍♀️', label: 'Mulher Loira', shirtColor: 'bg-pink-400' },
   { id: 'woman_brunette', icon: '👩', label: 'Mulher Morena', shirtColor: 'bg-purple-500' },
   { id: 'woman_black', icon: '👩🏾', label: 'Mulher Negra', shirtColor: 'bg-amber-500' },
-  { id: 'man_white', icon: '👱‍♂️', label: 'Homem Loiro', shirtColor: 'bg-blue-500' },
+  { id: 'woman_old', icon: '👵', label: 'Senhora', shirtColor: 'bg-rose-400' },
   { id: 'man_black', icon: '👨🏾', label: 'Homem Negro', shirtColor: 'bg-emerald-500' },
   { id: 'man_native', icon: '🧔🏽', label: 'Homem Moreno', shirtColor: 'bg-orange-500' },
   { id: 'young', icon: '🧒', label: 'Jovem', shirtColor: 'bg-cyan-400' },

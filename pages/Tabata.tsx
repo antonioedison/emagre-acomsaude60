@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Play, Pause, RefreshCw } from 'lucide-react';
@@ -182,6 +183,33 @@ const Tabata: React.FC = () => {
                     <div className="text-[10px] uppercase font-bold text-orange-300">Rounds</div>
                 </div>
             </div>
+          </div>
+
+          {/* Exercícios do Treino (New Section) */}
+          <div className="bg-white p-5 rounded-3xl shadow-sm border border-gray-100">
+            <div className="flex items-center gap-2 mb-3">
+                <span className="text-blue-500 text-xl">💪</span>
+                <h3 className="text-lg font-bold text-gray-800">Exercícios do Treino</h3>
+            </div>
+            <ul className="space-y-2">
+                {[
+                    "Jumping Jack (polichinelo)",
+                    "Standing cross-body abdominal exercise",
+                    "Alternating Jump",
+                    "Squat jump",
+                    "Cross Jump",
+                    "Butt kick",
+                    "Split Jump",
+                    "Burpee"
+                ].map((ex, i) => (
+                    <li key={i} className="flex items-center gap-3 bg-gray-50 p-3 rounded-xl border border-gray-100">
+                        <span className="bg-brand-aqua text-white w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0 shadow-sm">
+                            {i + 1}
+                        </span>
+                        <span className="text-sm font-medium text-gray-700">{ex}</span>
+                    </li>
+                ))}
+            </ul>
           </div>
 
           {/* Benefícios */}
