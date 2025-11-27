@@ -3,9 +3,9 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { useGame } from '../context/GameContext';
-import { SECTIONS, LEVEL_THRESHOLDS } from '../constants';
+import { SECTIONS, LEVEL_THRESHOLDS, CHALLENGE_QUOTES } from '../constants';
 import * as Icons from 'lucide-react';
-import { Calendar, AlertTriangle, RefreshCw, Sparkles, Star, Zap, Flame } from 'lucide-react';
+import { Calendar, AlertTriangle, RefreshCw, Sparkles, Star, Zap, Flame, Quote } from 'lucide-react';
 
 const Home: React.FC = () => {
   const navigate = useNavigate();
@@ -56,6 +56,12 @@ const Home: React.FC = () => {
     return Icon ? <Icon size={28} className="text-white" /> : null;
   };
 
+  // Determine current motivational quote
+  const quoteIndex = Math.min(Math.floor(daysPassed / 5), CHALLENGE_QUOTES.length - 1);
+  const currentQuote = userState.challenge.isActive 
+      ? CHALLENGE_QUOTES[quoteIndex] 
+      : "Inicie o desafio para transformar sua vida!";
+
   // Filter out the 'valuable-tips' section from the grid because it has a special button
   const gridSections = SECTIONS.filter(s => s.id !== 'valuable-tips');
 
@@ -91,17 +97,22 @@ const Home: React.FC = () => {
             </div>
          </div>
 
-         {/* Streak Card - Full Width */}
-         <div className="bg-gradient-to-r from-orange-500 to-red-500 rounded-3xl p-4 text-white relative overflow-hidden shadow-lg shadow-orange-200 flex items-center justify-between">
-            <div className="relative z-10">
-               <h3 className="text-3xl font-black">{userState.streak}</h3>
-               <p className="text-xs font-bold opacity-90">Sequência (Dias)</p>
+         {/* Motivational Quote Card - Replaces Streak */}
+         <div className="bg-gradient-to-r from-orange-500 to-red-500 rounded-3xl p-5 text-white relative overflow-hidden shadow-lg shadow-orange-200 flex items-center justify-between min-h-[100px]">
+            <div className="relative z-10 max-w-[85%]">
+               <div className="flex items-center gap-2 mb-1 opacity-75">
+                    <Quote size={16} fill="currentColor" />
+                    <span className="text-xs font-bold uppercase tracking-wider">Motivação Diária</span>
+               </div>
+               <p className="text-lg font-bold leading-tight italic">
+                   "{currentQuote}"
+               </p>
             </div>
             <div className="relative z-10">
-                <Flame fill="currentColor" size={32} />
+                <Flame fill="currentColor" size={24} className="opacity-80" />
             </div>
             {/* Decoration */}
-            <Flame className="absolute right-[-10px] bottom-[-15px] opacity-20 w-24 h-24 rotate-12" />
+            <Flame className="absolute right-[-15px] bottom-[-20px] opacity-10 w-32 h-32 rotate-12" />
          </div>
       </div>
 

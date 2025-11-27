@@ -5,6 +5,21 @@ import { Coffee, GlassWater, Moon, Utensils, Zap, Salad, Ban, Dumbbell, Sparkles
 
 export const LEVEL_THRESHOLDS = [0, 100, 300, 600, 1000, 1500, 2100, 2800, 3600, 5000];
 
+export const CHALLENGE_QUOTES = [
+  "O primeiro passo é o mais importante. Acredite em você!",       // Dias 0-4
+  "A constância é a chave do sucesso. Continue firme!",           // Dias 5-9
+  "Você é mais forte do que imagina. Não desista!",               // Dias 10-14
+  "Resultados levam tempo. Ame o processo de mudança.",           // Dias 15-19
+  "Um terço do caminho já foi! Orgulhe-se de cada escolha.",      // Dias 20-24
+  "Sua saúde é seu maior investimento. Cuide-se!",                // Dias 25-29
+  "Metade do desafio! Olhe para trás e veja sua evolução.",       // Dias 30-34
+  "Disciplina é escolher o que você quer agora vs o que quer mais.", // Dias 35-39
+  "Cada dia conta. Faça suas escolhas valerem a pena.",           // Dias 40-44
+  "A reta final se aproxima. Dê o seu melhor agora!",             // Dias 45-49
+  "Falta pouco! Sinta a energia da vitória chegando.",            // Dias 50-54
+  "Você conseguiu chegar até aqui. Finalize com chave de ouro!"   // Dias 55-60
+];
+
 export const AVATARS = [
   { id: 'woman_blonde', icon: '👱‍♀️', label: 'Mulher Loira', shirtColor: 'bg-pink-400' },
   { id: 'woman_brunette', icon: '👩', label: 'Mulher Morena', shirtColor: 'bg-purple-500' },

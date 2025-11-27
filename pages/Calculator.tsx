@@ -1,17 +1,18 @@
+
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Calculator as CalcIcon, Activity } from 'lucide-react';
+import { Calculator as CalcIcon, Activity, AlertTriangle, CheckCircle, TrendingUp } from 'lucide-react';
 import { useGame } from '../context/GameContext';
 
 const Calculator: React.FC = () => {
   const { updateStats } = useGame();
-  const [step, setStep] = useState(1); // 1: Inputs, 2: Results
+  const [step, setStep] = useState(1);
   const [formData, setFormData] = useState({
     weight: '',
-    height: '', // in cm
+    height: '',
     age: '',
     gender: 'female',
-    activity: '1.2' // Sedentary
+    activity: '1.2'
   });
 
   const [results, setResults] = useState<{bmr: number, tdee: number} | null>(null);
@@ -44,49 +45,110 @@ const Calculator: React.FC = () => {
   };
 
   if (step === 2 && results) {
+    const healthyCals = Math.round(results.tdee - 500);
+    const aggressiveCals = Math.round(results.tdee - 1100);
+
     return (
-        <div className="p-6 space-y-6">
-            <div className="text-center mb-6">
-                <h2 className="text-2xl font-bold text-brand-darkGreen">Seus Resultados</h2>
-                <p className="text-gray-500">Baseado no seu perfil metabólico</p>
-            </div>
-
+        <div className="p-4 space-y-4 pb-24">
+            {/* TMB Card */}
             <motion.div 
-                initial={{ scale: 0.8, opacity: 0 }}
-                animate={{ scale: 1, opacity: 1 }}
-                className="bg-white p-6 rounded-3xl shadow-xl border-t-4 border-brand-yellow text-center"
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="bg-gradient-to-r from-[#00B4D8] to-[#0077B6] rounded-2xl p-5 text-white shadow-lg"
             >
-                <p className="text-gray-500 font-bold uppercase text-xs tracking-wider">Metabolismo Basal (TMB)</p>
-                <div className="text-4xl font-black text-gray-800 my-2">{results.bmr} <span className="text-lg font-normal text-gray-400">kcal</span></div>
-                <p className="text-xs text-gray-400">O que você queima parado.</p>
-            </motion.div>
-
-            <motion.div 
-                initial={{ scale: 0.8, opacity: 0 }}
-                animate={{ scale: 1, opacity: 1 }}
-                transition={{ delay: 0.2 }}
-                className="bg-brand-aqua p-6 rounded-3xl shadow-xl text-center text-white"
-            >
-                <p className="font-bold uppercase text-xs tracking-wider opacity-80">Gasto Total Diário (GET)</p>
-                <div className="text-5xl font-black my-2">{results.tdee} <span className="text-lg font-normal opacity-70">kcal</span></div>
-                <p className="text-xs opacity-80">Para manter o peso atual.</p>
-            </motion.div>
-
-            <div className="space-y-3 mt-8">
-                <h3 className="font-bold text-gray-700 ml-1">Recomendação Diária:</h3>
-                <div className="bg-green-100 p-4 rounded-xl border border-green-200 flex justify-between items-center">
-                    <span className="text-green-800 font-medium">Emagrecer (Leve)</span>
-                    <span className="font-bold text-green-900">{Math.round(results.tdee * 0.85)} kcal</span>
+                <div className="flex items-center gap-3 mb-1">
+                    <div className="bg-white/20 p-2 rounded-lg"><CalcIcon size={20} /></div>
+                    <span className="font-bold text-sm opacity-90">TMB - Taxa Metabólica Basal</span>
                 </div>
-                <div className="bg-orange-100 p-4 rounded-xl border border-orange-200 flex justify-between items-center">
-                    <span className="text-orange-800 font-medium">Perder 1kg/sem (Agressivo)</span>
-                    <span className="font-bold text-orange-900">{Math.round(results.tdee - 750)} kcal</span>
+                <div className="text-4xl font-black mb-1">{results.bmr} kcal</div>
+                <p className="text-xs opacity-80 leading-tight">Calorias que seu corpo gasta em repouso absoluto (dormindo o dia todo)</p>
+            </motion.div>
+
+            {/* GET Card */}
+            <motion.div 
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.1 }}
+                className="bg-gradient-to-r from-emerald-400 to-emerald-600 rounded-2xl p-5 text-white shadow-lg"
+            >
+                <div className="flex items-center gap-3 mb-1">
+                    <div className="bg-white/20 p-2 rounded-lg"><Activity size={20} /></div>
+                    <span className="font-bold text-sm opacity-90">GET - Gasto Energético Total</span>
+                </div>
+                <div className="text-4xl font-black mb-1">{results.tdee} kcal</div>
+                <p className="text-xs opacity-80 leading-tight">Total de calorias que você gasta por dia com suas atividades</p>
+            </motion.div>
+
+             {/* Healthy Goal Card */}
+             <motion.div 
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.2 }}
+                className="bg-gradient-to-r from-orange-500 to-red-500 rounded-2xl p-5 text-white shadow-lg"
+            >
+                <div className="flex items-center gap-3 mb-1">
+                    <div className="bg-white/20 p-2 rounded-lg"><TrendingUp size={20} /></div>
+                    <span className="font-bold text-sm opacity-90">Meta para Emagrecer (Saudável)</span>
+                </div>
+                <div className="text-4xl font-black mb-1">{healthyCals} kcal/dia</div>
+                <p className="text-xs opacity-80 leading-tight">Déficit de 500 kcal = Perda de ~0.5 kg por semana (ritmo saudável)</p>
+            </motion.div>
+
+            {/* Aggressive Goal Card */}
+             <motion.div 
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.3 }}
+                className="bg-gradient-to-r from-purple-500 to-fuchsia-600 rounded-2xl p-5 text-white shadow-lg"
+            >
+                <div className="flex items-center gap-3 mb-1">
+                    <div className="bg-white/20 p-2 rounded-lg"><TrendingUp size={20} className="rotate-180" /></div>
+                    <span className="font-bold text-sm opacity-90">Meta Agressiva (1kg/semana)</span>
+                </div>
+                <div className="text-4xl font-black mb-1">{aggressiveCals > 1200 ? aggressiveCals : 1200} kcal/dia</div>
+                <p className="text-xs opacity-80 leading-tight">Déficit de ~1100 kcal = Perda de 1 kg por semana (apenas com acompanhamento)</p>
+            </motion.div>
+
+            {/* Tips Section */}
+            <div className="bg-white rounded-3xl p-5 shadow-sm border border-gray-100">
+                <h3 className="flex items-center gap-2 font-bold text-gray-800 mb-4">
+                    <span>💡</span> Dicas Importantes
+                </h3>
+                
+                <div className="space-y-3">
+                    <div className="bg-yellow-50 p-3 rounded-xl border border-yellow-100 flex gap-3 items-start">
+                        <AlertTriangle className="text-yellow-600 shrink-0 mt-0.5" size={18} />
+                        <p className="text-xs font-medium text-yellow-800">
+                            <strong>Nunca coma menos que sua TMB!</strong> Isso desacelera seu metabolismo.
+                        </p>
+                    </div>
+
+                    <div className="bg-green-50 p-3 rounded-xl border border-green-100 flex gap-3 items-start">
+                         <CheckCircle className="text-green-600 shrink-0 mt-0.5" size={18} />
+                         <p className="text-xs font-medium text-green-800">
+                            <strong>Recomendado:</strong> Déficit de 300-500 kcal para perda sustentável.
+                        </p>
+                    </div>
+
+                    <div className="bg-blue-50 p-3 rounded-xl border border-blue-100 flex gap-3 items-start">
+                         <span className="text-lg">💪</span>
+                         <p className="text-xs font-medium text-blue-800">
+                            <strong>Combine:</strong> Alimentação saudável + exercícios = resultados duradouros.
+                        </p>
+                    </div>
+
+                     <div className="bg-purple-50 p-3 rounded-xl border border-purple-100 flex gap-3 items-start">
+                         <span className="text-lg">📊</span>
+                         <p className="text-xs font-medium text-purple-800">
+                            <strong>Monitore:</strong> Ajuste sua dieta conforme vai perdendo peso.
+                        </p>
+                    </div>
                 </div>
             </div>
 
             <button 
                 onClick={() => setStep(1)}
-                className="w-full mt-6 py-4 bg-gray-200 text-gray-600 font-bold rounded-2xl"
+                className="w-full mt-4 py-4 bg-gray-200 text-gray-600 font-bold rounded-2xl hover:bg-gray-300 transition-colors"
             >
                 Recalcular
             </button>
@@ -94,90 +156,107 @@ const Calculator: React.FC = () => {
     );
   }
 
+  // Input Form
   return (
-    <div className="p-6">
-      <div className="flex items-center space-x-2 mb-6 text-brand-darkGreen">
-        <CalcIcon size={28} />
-        <h1 className="text-2xl font-bold">Calculadora Metabólica</h1>
-      </div>
-
-      <form onSubmit={calculate} className="space-y-5 bg-white p-6 rounded-3xl shadow-lg">
-        <div className="grid grid-cols-2 gap-4">
-            <div>
-                <label className="block text-sm font-bold text-gray-600 mb-1">Peso (kg)</label>
-                <input 
-                    type="number" required 
-                    className="w-full p-3 bg-gray-50 rounded-xl border border-gray-200 focus:border-brand-aqua focus:ring-2 focus:ring-brand-aqua outline-none transition-all font-bold text-lg text-center"
-                    value={formData.weight}
-                    onChange={e => setFormData({...formData, weight: e.target.value})}
-                    placeholder="00"
-                />
+    <div className="min-h-screen bg-slate-50">
+        {/* Header */}
+        <div className="bg-gradient-to-r from-fuchsia-600 to-purple-700 p-6 pt-8 pb-10 rounded-b-[2.5rem] shadow-xl text-white text-center">
+            <div className="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center mx-auto mb-3 backdrop-blur-sm">
+                <CalcIcon size={24} />
             </div>
-            <div>
-                <label className="block text-sm font-bold text-gray-600 mb-1">Altura (cm)</label>
-                <input 
-                    type="number" required 
-                    className="w-full p-3 bg-gray-50 rounded-xl border border-gray-200 focus:border-brand-aqua focus:ring-2 focus:ring-brand-aqua outline-none transition-all font-bold text-lg text-center"
-                    value={formData.height}
-                    onChange={e => setFormData({...formData, height: e.target.value})}
-                    placeholder="165"
-                />
-            </div>
+            <h1 className="text-xl font-bold mb-2">Gasto Energético Total (GET)</h1>
+            <p className="text-white/80 text-xs px-4 leading-relaxed">
+                Calcule quantas calorias seu corpo gasta por dia e descubra exatamente quanto deve comer para emagrecer com saúde!
+            </p>
         </div>
 
-        <div className="grid grid-cols-2 gap-4">
-             <div>
-                <label className="block text-sm font-bold text-gray-600 mb-1">Idade</label>
-                <input 
-                    type="number" required 
-                    className="w-full p-3 bg-gray-50 rounded-xl border border-gray-200 focus:border-brand-aqua focus:ring-2 focus:ring-brand-aqua outline-none transition-all font-bold text-lg text-center"
-                    value={formData.age}
-                    onChange={e => setFormData({...formData, age: e.target.value})}
-                    placeholder="30"
-                />
-            </div>
-            <div>
-                <label className="block text-sm font-bold text-gray-600 mb-1">Sexo</label>
-                <select 
-                    className="w-full p-3 bg-gray-50 rounded-xl border border-gray-200 focus:border-brand-aqua outline-none font-medium h-[54px]"
-                    value={formData.gender}
-                    onChange={e => setFormData({...formData, gender: e.target.value})}
+        {/* Form Body */}
+        <div className="px-4 -mt-6 pb-24 relative z-10">
+            <form onSubmit={calculate} className="bg-white p-6 rounded-3xl shadow-lg space-y-5">
+                <h3 className="font-bold text-gray-800 border-b border-gray-100 pb-2 mb-2">Seus Dados</h3>
+
+                <div className="space-y-1">
+                    <label className="text-xs font-bold text-gray-500 ml-1">Peso (kg)</label>
+                    <input 
+                        type="number" required 
+                        className="w-full p-3 bg-gray-50 rounded-xl border border-gray-200 outline-none focus:border-fuchsia-500 focus:ring-2 focus:ring-fuchsia-200 transition-all font-bold text-gray-700"
+                        value={formData.weight}
+                        onChange={e => setFormData({...formData, weight: e.target.value})}
+                        placeholder="Ex: 68"
+                    />
+                </div>
+
+                <div className="space-y-1">
+                    <label className="text-xs font-bold text-gray-500 ml-1">Altura (cm)</label>
+                    <input 
+                        type="number" required 
+                        className="w-full p-3 bg-gray-50 rounded-xl border border-gray-200 outline-none focus:border-fuchsia-500 focus:ring-2 focus:ring-fuchsia-200 transition-all font-bold text-gray-700"
+                        value={formData.height}
+                        onChange={e => setFormData({...formData, height: e.target.value})}
+                        placeholder="Ex: 165"
+                    />
+                </div>
+
+                <div className="space-y-1">
+                    <label className="text-xs font-bold text-gray-500 ml-1">Idade (anos)</label>
+                    <input 
+                        type="number" required 
+                        className="w-full p-3 bg-gray-50 rounded-xl border border-gray-200 outline-none focus:border-fuchsia-500 focus:ring-2 focus:ring-fuchsia-200 transition-all font-bold text-gray-700"
+                        value={formData.age}
+                        onChange={e => setFormData({...formData, age: e.target.value})}
+                        placeholder="Ex: 38"
+                    />
+                </div>
+
+                <div className="space-y-1">
+                    <label className="text-xs font-bold text-gray-500 ml-1">Sexo</label>
+                    <div className="flex gap-4">
+                        <button
+                            type="button"
+                            onClick={() => setFormData({...formData, gender: 'male'})}
+                            className={`flex-1 py-3 rounded-xl font-bold text-sm flex items-center justify-center gap-2 transition-all ${formData.gender === 'male' ? 'bg-[#00B4D8] text-white shadow-md' : 'bg-gray-100 text-gray-400'}`}
+                        >
+                            <span>👨</span> Masculino
+                        </button>
+                        <button
+                             type="button"
+                             onClick={() => setFormData({...formData, gender: 'female'})}
+                             className={`flex-1 py-3 rounded-xl font-bold text-sm flex items-center justify-center gap-2 transition-all ${formData.gender === 'female' ? 'bg-fuchsia-500 text-white shadow-md' : 'bg-gray-100 text-gray-400'}`}
+                        >
+                             <span>👩</span> Feminino
+                        </button>
+                    </div>
+                </div>
+
+                <div className="space-y-1">
+                    <label className="text-xs font-bold text-gray-500 ml-1">Nível de Atividade Física</label>
+                    <div className="relative">
+                        <select 
+                            value={formData.activity}
+                            onChange={e => setFormData({...formData, activity: e.target.value})}
+                            className="w-full p-3 bg-gray-50 rounded-xl border border-gray-200 outline-none focus:border-fuchsia-500 focus:ring-2 focus:ring-fuchsia-200 transition-all font-medium text-gray-700 appearance-none"
+                        >
+                             <option value="1.2">Sedentário - Pouco ou nenhum exercício</option>
+                             <option value="1.375">Leve - Exercício 1-3 dias/sem</option>
+                             <option value="1.55">Moderado - Exercício 3-5 dias/sem</option>
+                             <option value="1.725">Intenso - Exercício 6-7 dias/sem</option>
+                             <option value="1.9">Muito Intenso - Exercício pesado todo dia</option>
+                        </select>
+                        <div className="absolute right-4 top-4 pointer-events-none text-gray-400">
+                            ▼
+                        </div>
+                    </div>
+                </div>
+
+                <motion.button 
+                    whileTap={{ scale: 0.95 }}
+                    type="submit"
+                    className="w-full bg-gradient-to-r from-fuchsia-600 to-purple-600 text-white font-extrabold text-lg py-4 rounded-xl shadow-lg mt-4 flex items-center justify-center gap-2"
                 >
-                    <option value="female">Mulher</option>
-                    <option value="male">Homem</option>
-                </select>
-            </div>
+                    <CalcIcon size={20} /> Calcular Agora
+                </motion.button>
+            </form>
         </div>
-
-        <div>
-            <label className="block text-sm font-bold text-gray-600 mb-1">Nível de Atividade</label>
-            <div className="space-y-2">
-                {[
-                    { val: '1.2', label: 'Sedentário (Pouco ou nenhum exercício)' },
-                    { val: '1.375', label: 'Leve (Exercício 1-3 dias/sem)' },
-                    { val: '1.55', label: 'Moderado (Exercício 3-5 dias/sem)' },
-                    { val: '1.725', label: 'Intenso (Exercício 6-7 dias/sem)' }
-                ].map(opt => (
-                    <button
-                        type="button"
-                        key={opt.val}
-                        onClick={() => setFormData({...formData, activity: opt.val})}
-                        className={`w-full p-3 rounded-xl text-left text-sm transition-all border ${formData.activity === opt.val ? 'bg-brand-aqua text-white border-brand-aqua shadow-md' : 'bg-white text-gray-600 border-gray-200'}`}
-                    >
-                        {opt.label}
-                    </button>
-                ))}
-            </div>
-        </div>
-
-        <motion.button 
-            whileTap={{ scale: 0.95 }}
-            type="submit"
-            className="w-full bg-brand-yellow text-yellow-900 font-extrabold text-lg py-4 rounded-2xl shadow-lg mt-4"
-        >
-            CALCULAR AGORA
-        </motion.button>
-      </form>
     </div>
   );
 };
