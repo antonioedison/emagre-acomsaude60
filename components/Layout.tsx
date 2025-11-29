@@ -1,10 +1,19 @@
-import React from 'react';
-import { Outlet, NavLink } from 'react-router-dom';
+import React, { useEffect, useRef } from 'react';
+import { Outlet, NavLink, useLocation } from 'react-router-dom';
 import { Home, Calculator, Timer, User } from 'lucide-react';
 import { useGame } from '../context/GameContext';
 
 const Layout: React.FC = () => {
   const { themeConfig } = useGame();
+  const location = useLocation();
+  const scrollRef = useRef<HTMLDivElement>(null);
+
+  // Reset scroll position when route changes
+  useEffect(() => {
+    if (scrollRef.current) {
+      scrollRef.current.scrollTop = 0;
+    }
+  }, [location.pathname]);
 
   return (
     <div className="flex flex-col h-screen bg-slate-50 max-w-md mx-auto shadow-2xl overflow-hidden relative">
@@ -12,7 +21,7 @@ const Layout: React.FC = () => {
       {/* Top Bar Removed per request - Header is now specific to Home page and scrolls with content */}
 
       {/* Main Content Area */}
-      <div className="flex-1 overflow-y-auto no-scrollbar pb-24 scroll-smooth bg-gray-50">
+      <div ref={scrollRef} className="flex-1 overflow-y-auto no-scrollbar pb-24 scroll-smooth bg-gray-50">
         <Outlet />
       </div>
 

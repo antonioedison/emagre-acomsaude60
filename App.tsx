@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { HashRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { HashRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import Layout from './components/Layout';
 import Home from './pages/Home';
 import ContentPage from './pages/ContentPage';
@@ -9,8 +9,19 @@ import Tabata from './pages/Tabata';
 import Profile from './pages/Profile';
 import Login from './pages/Login';
 import Register from './pages/Register';
-import { GameProvider } from './context/GameContext';
+import Onboarding from './pages/Onboarding';
+import { GameProvider, useGame } from './context/GameContext';
 import { ProtectedRoute } from './components/ProtectedRoute';
+
+// Wrapper to enforce onboarding completion
+const RequireOnboarding: React.FC<{ children: React.ReactElement }> = ({ children }) => {
+  const { userState } = useGame();
+  
+  if (!userState.onboardingCompleted) {
+    return <Navigate to="/onboarding" replace />;
+  }
+  return children;
+};
 
 const App: React.FC = () => {
   return (
@@ -21,8 +32,21 @@ const App: React.FC = () => {
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
 
-          {/* Protected Routes */}
-          <Route path="/" element={<ProtectedRoute><Layout /></ProtectedRoute>}>
+          {/* Protected Route for Onboarding (No Layout) */}
+          <Route path="/onboarding" element={
+            <ProtectedRoute>
+                <Onboarding />
+            </ProtectedRoute>
+          } />
+
+          {/* Main App Routes (Protected + Onboarding Required) */}
+          <Route path="/" element={
+            <ProtectedRoute>
+                <RequireOnboarding>
+                    <Layout />
+                </RequireOnboarding>
+            </ProtectedRoute>
+          }>
             <Route index element={<Home />} />
             <Route path="content/:id" element={<ContentPage />} />
             <Route path="calculator" element={<Calculator />} />

@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { ContentSection, ShopItem } from './types';
-import { Coffee, GlassWater, Moon, Utensils, Zap, Salad, Ban, Dumbbell, Sparkles } from 'lucide-react';
+import { Coffee, GlassWater, Moon, Utensils, Zap, Salad, Ban, Dumbbell, Sparkles, ClipboardList } from 'lucide-react';
 
 export const LEVEL_THRESHOLDS = [0, 100, 300, 600, 1000, 1500, 2100, 2800, 3600, 5000];
 
@@ -279,6 +279,68 @@ export const SECTIONS: ContentSection[] = [
     contentType: 'guide',
     data: {
         sections: [] // Handled via custom UI
+    }
+  },
+  {
+    id: 'daily-guidelines',
+    title: 'Orientações Diárias',
+    description: 'Plano básico e orientações essenciais.',
+    icon: 'ClipboardList',
+    color: 'bg-cyan-600',
+    xpReward: 110,
+    contentType: 'daily-guidelines',
+    data: {
+       intro: "Siga essas orientações para alcançar resultados, caso não consiga fazer nenhuma das receitas acima, tenha essas opções:",
+       meals: [
+           {
+               title: 'Café da Manhã',
+               icon: 'Sun',
+               color: 'orange',
+               items: [
+                   '1 pão francês',
+                   '1 ovo frito ou mexido na frigideira untada com óleo (pouquíssimo óleo) <span class="text-xs text-gray-500 italic">(5g proteína e 5g gordura)</span>',
+                   '1 fatia de mussuarela (25g) <span class="text-xs text-gray-500 italic">(7g proteína e 4g gordura)</span>',
+                   '1 café com leite'
+               ]
+           },
+           {
+               title: 'Almoço',
+               icon: 'Utensils',
+               color: 'blue',
+               items: [
+                   'Filé de frango <strong class="text-xs uppercase">OU</strong> carne moída',
+                   '1 escumadeira de Arroz',
+                   '1 concha de feijão',
+                   'Salada, metade do seu prato'
+               ]
+           },
+           {
+               title: 'Chá da Tarde',
+               icon: 'Coffee',
+               color: 'green',
+               items: [
+                   'Escolha chá de hibisco com canela ou chá verde com limão e gengibre',
+                   'Torrada integral com mel <span class="text-xs text-gray-500">(evite o excesso pois o mel calórico)</span>',
+                   '<strong class="text-xs uppercase text-green-600">OU</strong> Iogurte natural com frutas e castanha <span class="text-xs text-gray-500">(evite o excesso pois as oleaginosas são calóricas)</span>'
+               ]
+           },
+           {
+               title: 'Jantar',
+               icon: 'Moon',
+               color: 'indigo',
+               items: [
+                   '1 escumadeira de Arroz',
+                   '1 concha de feijão',
+                   '1 a 2 Ovos',
+                   'Legumes e verduras',
+                   'Salada Metade do seu prato'
+               ]
+           }
+       ],
+       tips: [
+           { icon: 'Clock', text: 'As Carnes no geral demoram mais tempo a sua digestão, a digestão da carne no estômago geralmente leva de 3 a 5 horas, dependendo do tipo e do preparo.' },
+           { icon: 'Apple', text: 'Sempre que sentir fome coma uma porção de frutas' }
+       ]
     }
   },
   {

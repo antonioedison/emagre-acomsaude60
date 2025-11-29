@@ -1,10 +1,12 @@
+
 import React, { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { ArrowLeft, CheckCircle, Droplet, Plus, Minus, Zap, Clock, AlertTriangle, Check, Moon, Sun, Utensils, GlassWater, Star } from 'lucide-react';
+import { ArrowLeft, CheckCircle, Droplet, Plus, Minus, Zap, Clock, AlertTriangle, Check, Moon, Sun, Utensils, GlassWater, Star, Timer, Apple } from 'lucide-react';
 import { SECTIONS } from '../constants';
 import { useGame } from '../context/GameContext';
 import { Recipe } from '../types';
+import * as Icons from 'lucide-react';
 
 const ContentPage: React.FC = () => {
   const { id } = useParams();
@@ -440,6 +442,65 @@ const ContentPage: React.FC = () => {
                             <span className="text-gray-700 text-sm font-medium">Evite sucos industrializados e açúcar</span>
                          </div>
                     </div>
+                </div>
+            </div>
+        );
+    }
+
+    if (section.contentType === 'daily-guidelines') {
+        const data = section.data as any;
+        return (
+            <div className="space-y-6">
+                <div className="bg-white p-4 rounded-2xl shadow-sm text-gray-700 leading-relaxed font-medium text-sm">
+                    {data.intro}
+                </div>
+
+                <div className="space-y-4">
+                     {data.meals.map((meal: any, idx: number) => {
+                         const Icon = (Icons as any)[meal.icon];
+                         let bg = '', border = '', text = '';
+                         if (meal.color === 'orange') { bg = 'bg-orange-50'; border = 'border-orange-100'; text = 'text-orange-800'; }
+                         if (meal.color === 'blue') { bg = 'bg-blue-50'; border = 'border-blue-100'; text = 'text-blue-800'; }
+                         if (meal.color === 'green') { bg = 'bg-green-50'; border = 'border-green-100'; text = 'text-green-800'; }
+                         if (meal.color === 'indigo') { bg = 'bg-indigo-50'; border = 'border-indigo-100'; text = 'text-indigo-800'; }
+
+                         return (
+                            <div key={idx} className={`${bg} p-4 rounded-2xl border ${border}`}>
+                                <h4 className={`${text} font-bold mb-2 flex items-center gap-2`}>
+                                   {Icon && <Icon size={18} />} {meal.title}
+                                </h4>
+                                <ul className="text-sm text-gray-700 space-y-1 pl-1">
+                                    {meal.items.map((item: string, i: number) => (
+                                        <li key={i} dangerouslySetInnerHTML={{ __html: `• ${item}` }}></li>
+                                    ))}
+                                </ul>
+                            </div>
+                         );
+                     })}
+                </div>
+
+                <div className="mt-6 space-y-3">
+                     {data.tips.map((tip: any, idx: number) => {
+                         const TipIcon = (Icons as any)[tip.icon];
+                         return (
+                             <div key={idx} className="bg-gray-50 p-3 rounded-xl border border-gray-100 flex gap-3 text-sm text-gray-600">
+                                {TipIcon && <TipIcon className={`flex-shrink-0 ${tip.icon === 'Apple' ? 'text-red-400' : 'text-gray-400'}`} size={20} />}
+                                <p>{tip.text}</p>
+                             </div>
+                         );
+                     })}
+
+                     <div className="bg-gradient-to-r from-purple-100 to-purple-50 p-4 rounded-xl border border-purple-100 flex gap-3 items-center cursor-pointer" onClick={() => navigate('/tabata')}>
+                        <div className="bg-purple-500 text-white p-2 rounded-lg">
+                            <Timer size={20} />
+                        </div>
+                        <div>
+                            <h5 className="font-bold text-purple-900 text-sm">Exercício Diário</h5>
+                            <p className="text-xs text-purple-700 leading-tight mt-1">
+                                Encontre 4 minutos para realizar o <strong>Protocolo Tabata</strong>. No início faça de forma lenta.
+                            </p>
+                        </div>
+                     </div>
                 </div>
             </div>
         );

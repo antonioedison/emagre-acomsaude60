@@ -5,11 +5,11 @@ import { motion } from 'framer-motion';
 import { useGame } from '../context/GameContext';
 import { SECTIONS, LEVEL_THRESHOLDS, CHALLENGE_QUOTES } from '../constants';
 import * as Icons from 'lucide-react';
-import { Calendar, AlertTriangle, RefreshCw, Sparkles, Star, Zap, Flame, Quote } from 'lucide-react';
+import { Calendar, AlertTriangle, RefreshCw, Sparkles, Star, Zap, Flame, Quote, Save, Scale, ClipboardList, Clock, Apple, Timer } from 'lucide-react';
 
 const Home: React.FC = () => {
   const navigate = useNavigate();
-  const { userState, startChallenge, resetChallenge } = useGame();
+  const { userState, startChallenge, resetChallenge, logChallengeWeight } = useGame();
   
   // Progress Calculation
   const nextLevelXp = LEVEL_THRESHOLDS[userState.level] || 10000;
@@ -21,6 +21,10 @@ const Home: React.FC = () => {
   const [challengeLoss, setChallengeLoss] = useState('');
   const [challengeError, setChallengeError] = useState('');
   const [daysPassed, setDaysPassed] = useState(0);
+
+  // Log Progress State
+  const [logDate, setLogDate] = useState(new Date().toISOString().split('T')[0]);
+  const [logWeight, setLogWeight] = useState('');
 
   useEffect(() => {
     if (userState.challenge.isActive && userState.challenge.startDate) {
@@ -48,6 +52,14 @@ const Home: React.FC = () => {
 
     setChallengeError('');
     startChallenge(w, l);
+  };
+
+  const handleLogWeight = () => {
+      const w = parseFloat(logWeight);
+      if (!w || !logDate) return;
+      logChallengeWeight(w, logDate);
+      setLogWeight('');
+      alert('Peso registrado com sucesso! Confira no seu perfil.');
   };
 
   // Helper to dynamically get icon component
@@ -203,7 +215,7 @@ const Home: React.FC = () => {
                     />
                 </div>
 
-                <div className="flex justify-between text-sm bg-gray-50 p-3 rounded-xl">
+                <div className="flex justify-between text-sm bg-gray-50 p-3 rounded-xl mb-4">
                     <div className="flex flex-col items-center w-1/2 border-r border-gray-200">
                         <span className="text-gray-400 text-xs font-bold uppercase">Início</span>
                         <span className="font-bold text-gray-700">{userState.challenge.startWeight} kg</span>
@@ -214,6 +226,34 @@ const Home: React.FC = () => {
                             {(userState.challenge.startWeight - userState.challenge.targetLoss).toFixed(1)} kg
                         </span>
                     </div>
+                </div>
+
+                {/* Weight Log Section */}
+                <div className="border-t border-gray-100 pt-4 mt-2">
+                     <h4 className="text-sm font-bold text-gray-700 mb-2 flex items-center gap-2">
+                        <Scale size={16} className="text-brand-aqua" /> Registrar peso obtido
+                     </h4>
+                     <div className="flex gap-2">
+                         <input 
+                            type="date" 
+                            value={logDate}
+                            onChange={(e) => setLogDate(e.target.value)}
+                            className="bg-gray-50 border border-gray-200 rounded-lg text-xs font-bold p-2 text-gray-600 outline-none w-[110px]"
+                         />
+                         <input 
+                            type="number" 
+                            placeholder="Kg"
+                            value={logWeight}
+                            onChange={(e) => setLogWeight(e.target.value)}
+                            className="bg-gray-50 border border-gray-200 rounded-lg text-xs font-bold p-2 text-gray-800 outline-none w-[60px]"
+                         />
+                         <button 
+                            onClick={handleLogWeight}
+                            className="bg-brand-aqua text-white rounded-lg p-2 flex-1 flex items-center justify-center font-bold text-xs hover:bg-brand-darkGreen transition-colors"
+                         >
+                            <Save size={14} className="mr-1" /> Salvar
+                         </button>
+                     </div>
                 </div>
             </div>
         )}

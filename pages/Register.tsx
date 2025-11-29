@@ -34,7 +34,7 @@ const Register: React.FC = () => {
     setTimeout(async () => {
         const success = await register(name, email, password);
         if (success) {
-            navigate('/');
+            navigate('/onboarding'); // Redirect to Onboarding
         } else {
             setError('Este e-mail já está cadastrado.');
         }

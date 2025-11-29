@@ -14,8 +14,13 @@ export interface ContentSection {
   icon: string; // Lucide icon name
   color: string;
   xpReward: number;
-  contentType: 'recipe-list' | 'text-list' | 'guide' | 'avoid-list' | 'valuable-tips';
+  contentType: 'recipe-list' | 'text-list' | 'guide' | 'avoid-list' | 'valuable-tips' | 'daily-guidelines';
   data: any; 
+}
+
+export interface ChallengeLog {
+  date: string;
+  weight: number;
 }
 
 export interface ChallengeState {
@@ -23,6 +28,7 @@ export interface ChallengeState {
   startDate: string | null;
   startWeight: number;
   targetLoss: number;
+  logs: ChallengeLog[]; // Registros de peso
 }
 
 export type ItemType = 'theme' | 'confetti' | 'frame';
@@ -48,6 +54,9 @@ export interface UserState {
   installDate: string; // Tracks when user started for the 365 day cycle
   name: string;
   avatar: string; // Emoji or ID
+  
+  // Onboarding Data
+  onboardingCompleted: boolean;
   stats?: {
     weight: number;
     height: number;
@@ -56,7 +65,12 @@ export interface UserState {
     activityLevel: number;
     bmr: number;
     tdee: number;
+    // New fields
+    goal?: 'lose' | 'tone' | 'maintain'; 
+    frequency?: string; // "1 a 3 vezes...", "nunca", etc.
+    commitment?: string; // "Sim", "Não", "Vou tentar"
   };
+  
   water: {
     current: number;
     goal: number;

@@ -11,9 +11,11 @@ interface GameContextType {
   addXp: (amount: number) => void;
   completeSection: (sectionId: string, xp: number) => void;
   updateStats: (stats: UserState['stats']) => void;
+  completeOnboarding: (data: any) => void;
   updateWater: (current: number, goal?: number) => void;
   triggerConfetti: () => void;
   startChallenge: (weight: number, loss: number) => void;
+  logChallengeWeight: (weight: number, date: string) => void;
   resetChallenge: () => void;
   updateProfile: (name: string, avatar: string) => void;
   buyItem: (item: ShopItem) => void;
@@ -34,6 +36,7 @@ const defaultState: UserState = {
   installDate: new Date().toISOString().split('T')[0],
   name: 'Motivado',
   avatar: 'woman_blonde',
+  onboardingCompleted: false, // Default false
   inventory: ['theme_default', 'confetti_default', 'frame_none'],
   activeCosmetics: {
     theme: 'theme_default',
@@ -45,7 +48,8 @@ const defaultState: UserState = {
     isActive: false,
     startDate: null,
     startWeight: 0,
-    targetLoss: 0
+    targetLoss: 0,
+    logs: []
   }
 };
 
@@ -224,6 +228,16 @@ export const GameProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     addXp(50);
   };
 
+  const completeOnboarding = (data: any) => {
+    setUserState(prev => ({
+        ...prev,
+        stats: { ...prev.stats, ...data, activityLevel: 1.2, bmr: 0, tdee: 0 }, // Init defaults
+        onboardingCompleted: true
+    }));
+    triggerConfetti();
+    addXp(100);
+  };
+
   const updateWater = (current: number, goal?: number) => {
     setUserState(prev => ({
         ...prev,
@@ -238,7 +252,19 @@ export const GameProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
             isActive: true,
             startDate: new Date().toISOString(),
             startWeight: weight,
-            targetLoss: loss
+            targetLoss: loss,
+            logs: []
+        }
+    }));
+    triggerConfetti();
+  };
+
+  const logChallengeWeight = (weight: number, date: string) => {
+    setUserState(prev => ({
+        ...prev,
+        challenge: {
+            ...prev.challenge,
+            logs: [...prev.challenge.logs, { date, weight }]
         }
     }));
     triggerConfetti();
@@ -248,7 +274,7 @@ export const GameProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     if (window.confirm("Tem certeza que deseja reiniciar o desafio dos 60 dias? Todo o progresso será perdido.")) {
         setUserState(prev => ({
             ...prev,
-            challenge: { isActive: false, startDate: null, startWeight: 0, targetLoss: 0 }
+            challenge: { isActive: false, startDate: null, startWeight: 0, targetLoss: 0, logs: [] }
         }));
     }
   };
@@ -284,7 +310,7 @@ export const GameProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   return (
     <GameContext.Provider value={{ 
         userState, daysInApp, isAuthenticated, addXp, completeSection, updateStats, updateWater, triggerConfetti, 
-        startChallenge, resetChallenge, updateProfile, buyItem, equipItem, login, register, logout,
+        startChallenge, resetChallenge, logChallengeWeight, updateProfile, buyItem, equipItem, login, register, logout, completeOnboarding,
         themeConfig: getThemeConfig()
     }}>
       {children}

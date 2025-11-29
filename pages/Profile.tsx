@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import { useGame } from '../context/GameContext';
 import { LEVEL_THRESHOLDS, AVATARS, SHOP_ITEMS } from '../constants';
-import { Edit2, TrendingUp, Calendar, Sparkles, Check, Lock, Store, LogOut } from 'lucide-react';
+import { Edit2, TrendingUp, Sparkles, Check, Lock, Store, LogOut, Target, Activity, ThumbsUp, Calendar } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 const Profile: React.FC = () => {
@@ -29,6 +29,27 @@ const Profile: React.FC = () => {
   const activeFrameId = userState.activeCosmetics.frame;
   const activeFrame = SHOP_ITEMS.find(i => i.id === activeFrameId);
   const frameClass = activeFrame ? activeFrame.value : '';
+
+  // --- Date Helpers for Calendars ---
+  const getSafeDate = (dateString: string) => {
+      // Append time to ensure local timezone parsing doesn't shift day back
+      const parts = dateString.split('-');
+      return new Date(parseInt(parts[0]), parseInt(parts[1]) - 1, parseInt(parts[2]));
+  };
+
+  const formatDateParts = (date: Date) => {
+      return {
+          day: date.getDate(),
+          month: date.toLocaleString('pt-BR', { month: 'short' }).replace('.', '').toUpperCase(),
+          year: date.getFullYear()
+      };
+  };
+
+  const installDateObj = getSafeDate(userState.installDate);
+  const todayDateObj = new Date();
+
+  const installParts = formatDateParts(installDateObj);
+  const todayParts = formatDateParts(todayDateObj);
 
   // Helper para visuais dos itens
   const getItemVisual = (id: string) => {
@@ -168,21 +189,118 @@ const Profile: React.FC = () => {
 
       {/* --- STATS GRID --- */}
       <div className="grid grid-cols-2 gap-4">
-        <div className="bg-white p-4 rounded-2xl shadow-sm border border-gray-100 flex flex-col items-center">
-            <div className="p-3 bg-orange-100 text-orange-600 rounded-full mb-2">
-                <TrendingUp size={20} />
+        {/* Missions Card */}
+        <div className="bg-white p-4 rounded-2xl shadow-sm border border-gray-100 flex flex-col items-center justify-center">
+            <div className="p-3 bg-orange-100 text-orange-600 rounded-full mb-3">
+                <TrendingUp size={24} />
             </div>
-            <div className="text-2xl font-black text-gray-800">{userState.completedSections.length}</div>
+            <div className="text-3xl font-black text-gray-800">{userState.completedSections.length}</div>
             <div className="text-xs text-gray-500 font-bold uppercase">Missões</div>
         </div>
-        <div className="bg-white p-4 rounded-2xl shadow-sm border border-gray-100 flex flex-col items-center">
-            <div className="p-3 bg-blue-100 text-blue-600 rounded-full mb-2">
-                <Calendar size={20} />
+
+        {/* Date Calendars (Replaces Streak) */}
+        <div className="bg-white p-3 rounded-2xl shadow-sm border border-gray-100 flex flex-col justify-center gap-3">
+            {/* Start Date */}
+            <div className="flex items-center gap-3 border-b border-gray-50 pb-2">
+                <div className="bg-blue-50 text-blue-600 rounded-lg p-1.5 min-w-[50px] text-center border border-blue-100 shadow-sm">
+                    <div className="text-[9px] font-bold uppercase leading-none mb-0.5">{installParts.month}</div>
+                    <div className="text-xl font-black leading-none">{installParts.day}</div>
+                    <div className="text-[9px] font-bold opacity-80 leading-none mt-0.5">{installParts.year}</div>
+                </div>
+                <div className="text-left">
+                    <span className="text-[10px] text-gray-400 font-bold uppercase block tracking-wide">Data inicio de uso app</span>
+                </div>
             </div>
-            <div className="text-2xl font-black text-gray-800">{userState.streak}</div>
-            <div className="text-xs text-gray-500 font-bold uppercase">Dias Seguidos</div>
+
+            {/* Current Date */}
+            <div className="flex items-center gap-3 pt-0">
+                <div className="bg-emerald-50 text-emerald-600 rounded-lg p-1.5 min-w-[50px] text-center border border-emerald-100 shadow-sm">
+                    <div className="text-[9px] font-bold uppercase leading-none mb-0.5">{todayParts.month}</div>
+                    <div className="text-xl font-black leading-none">{todayParts.day}</div>
+                    <div className="text-[9px] font-bold opacity-80 leading-none mt-0.5">{todayParts.year}</div>
+                </div>
+                 <div className="text-left">
+                    <span className="text-[10px] text-gray-400 font-bold uppercase block tracking-wide">Data Atual</span>
+                </div>
+            </div>
         </div>
       </div>
+
+      {/* --- CHALLENGE LOG HISTORY --- */}
+      {userState.challenge.logs && userState.challenge.logs.length > 0 && (
+          <div className="bg-white rounded-3xl p-5 shadow-sm border border-gray-100">
+             <h3 className="font-bold text-gray-800 text-sm mb-3 flex items-center gap-2">
+                <Calendar size={16} className="text-brand-aqua" />
+                Histórico do Desafio
+             </h3>
+             <div className="flex gap-3 overflow-x-auto no-scrollbar pb-2">
+                 {[...userState.challenge.logs].reverse().map((log, i) => {
+                     const dateParts = formatDateParts(getSafeDate(log.date));
+                     return (
+                         <div key={i} className="flex-shrink-0 flex flex-col items-center gap-2">
+                             <div className="bg-orange-50 text-orange-600 rounded-lg p-1.5 min-w-[50px] text-center border border-orange-100 shadow-sm">
+                                <div className="text-[9px] font-bold uppercase leading-none mb-0.5">{dateParts.month}</div>
+                                <div className="text-lg font-black leading-none">{dateParts.day}</div>
+                             </div>
+                             <span className="text-xs font-bold text-gray-600 bg-gray-100 px-2 py-0.5 rounded-full">{log.weight}kg</span>
+                         </div>
+                     );
+                 })}
+             </div>
+          </div>
+      )}
+
+      {/* --- USER GOALS & DATA (From Onboarding) --- */}
+      {userState.stats && (
+          <div className="bg-white rounded-3xl p-5 shadow-sm border border-gray-100 space-y-4">
+            <h3 className="font-bold text-gray-800 text-lg">Informações</h3>
+            
+            {userState.stats.goal && (
+                <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-xl">
+                    <div className="bg-white p-2 rounded-lg shadow-sm text-brand-aqua"><Target size={20} /></div>
+                    <div>
+                        <p className="text-xs font-bold text-gray-400 uppercase">Objetivo</p>
+                        <p className="font-bold text-gray-700">{userState.stats.goal}</p>
+                    </div>
+                </div>
+            )}
+            
+            {userState.stats.frequency && (
+                <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-xl">
+                    <div className="bg-white p-2 rounded-lg shadow-sm text-brand-yellow"><Activity size={20} /></div>
+                    <div>
+                        <p className="text-xs font-bold text-gray-400 uppercase">Prática de Exercícios</p>
+                        <p className="font-bold text-gray-700">{userState.stats.frequency}</p>
+                    </div>
+                </div>
+            )}
+
+            {userState.stats.commitment && (
+                <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-xl">
+                    <div className="bg-white p-2 rounded-lg shadow-sm text-purple-500"><ThumbsUp size={20} /></div>
+                    <div>
+                        <p className="text-xs font-bold text-gray-400 uppercase">Fará os exercícios todo dia?</p>
+                        <p className="font-bold text-gray-700">{userState.stats.commitment}</p>
+                    </div>
+                </div>
+            )}
+
+            <div className="grid grid-cols-3 gap-3 pt-2">
+                <div className="text-center">
+                    <p className="text-xs font-bold text-gray-400 uppercase">Peso</p>
+                    <p className="font-black text-gray-800">{userState.stats.weight} kg</p>
+                </div>
+                <div className="text-center border-l border-gray-100">
+                    <p className="text-xs font-bold text-gray-400 uppercase">Altura</p>
+                    <p className="font-black text-gray-800">{userState.stats.height} cm</p>
+                </div>
+                <div className="text-center border-l border-gray-100">
+                    <p className="text-xs font-bold text-gray-400 uppercase">Idade</p>
+                    <p className="font-black text-gray-800">{userState.stats.age}</p>
+                </div>
+            </div>
+          </div>
+      )}
 
       {/* --- SHOP --- */}
       <div className="pt-2">
