@@ -136,41 +136,61 @@ const Home: React.FC = () => {
         <p className="text-gray-500 mt-1 text-sm font-medium">Seu guia diário para uma vida leve e saudável</p>
       </div>
 
+      {/* Orientações Diárias / Plano Básico */}
+      <div className="pb-2">
+          {SECTIONS.filter(s => s.id === 'daily-guidelines').map((section) => (
+             <motion.button
+                key={section.id}
+                whileTap={{ scale: 0.98 }}
+                onClick={() => navigate(`/content/${section.id}`)}
+                className="w-full bg-white rounded-3xl p-5 shadow-sm border border-gray-100 flex items-center gap-4 text-left group"
+             >
+                <div className={`w-12 h-12 rounded-xl flex items-center justify-center text-white shadow-md ${section.color}`}>
+                    {getIcon(section.icon)}
+                </div>
+                <div className="flex-1">
+                    <h3 className="font-bold text-gray-800 text-lg">{section.title}</h3>
+                    <p className="text-xs text-gray-500 font-medium">{section.description}</p>
+                </div>
+             </motion.button>
+          ))}
+      </div>
+
       {/* 60-Day Challenge Section */}
       <div className="bg-white rounded-3xl shadow-lg border border-gray-100 overflow-hidden">
         {!userState.challenge.isActive ? (
             // Inactive State: Form
-            <div className="p-5 bg-gradient-to-br from-brand-darkGreen to-brand-aqua text-white">
+            <div className="p-5">
                 <div className="flex items-center gap-2 mb-3">
-                    <Calendar className="text-brand-yellow" />
-                    <h3 className="font-bold text-lg">Desafio 60 Dias</h3>
+                    <Calendar className="text-brand-aqua" size={24} />
+                    <h3 className="font-bold text-lg text-brand-darkGreen">Desafio 60 Dias</h3>
                 </div>
-                <p className="text-sm mb-4 opacity-90">Defina sua meta e acompanhe sua evolução diária!</p>
+                <p className="text-sm mb-4 text-gray-500 font-medium">Defina sua meta e acompanhe sua evolução diária!</p>
                 
-                <div className="space-y-3">
+                <div className="space-y-4">
                     <div>
-                        <label className="text-xs font-bold uppercase opacity-80 ml-1">Peso Atual (kg)</label>
+                        <label className="text-xs font-bold uppercase text-gray-400 ml-1">Peso Atual (kg)</label>
                         <input 
                             type="number" 
                             value={challengeWeight}
                             onChange={(e) => setChallengeWeight(e.target.value)}
-                            className="w-full p-2 rounded-xl text-gray-800 font-bold outline-none border-2 border-transparent focus:border-brand-yellow"
+                            className="w-full p-3 rounded-xl bg-gray-50 text-gray-800 font-bold outline-none border border-gray-200 focus:border-brand-aqua transition-colors"
                             placeholder="Ex: 80"
                         />
                     </div>
                     <div>
-                        <label className="text-xs font-bold uppercase opacity-80 ml-1">Quero perder (Máx 10kg)</label>
+                        <label className="text-xs font-bold uppercase text-gray-400 ml-1">Quero perder (Máx 10kg)</label>
                         <input 
                             type="number" 
                             value={challengeLoss}
                             onChange={(e) => setChallengeLoss(e.target.value)}
-                            className="w-full p-2 rounded-xl text-gray-800 font-bold outline-none border-2 border-transparent focus:border-brand-yellow"
+                            className="w-full p-3 rounded-xl bg-gray-50 text-gray-800 font-bold outline-none border border-gray-200 focus:border-brand-aqua transition-colors"
                             placeholder="Ex: 5"
                         />
                     </div>
                     
                     {challengeError && (
-                        <div className="bg-red-500/20 border border-red-500/50 p-2 rounded-lg text-xs font-bold flex items-center gap-2">
+                        <div className="bg-red-50 border border-red-100 p-2 rounded-lg text-xs font-bold text-red-500 flex items-center gap-2">
                             <AlertTriangle size={14} />
                             {challengeError}
                         </div>
@@ -261,7 +281,7 @@ const Home: React.FC = () => {
 
       {/* Grid Menu */}
       <div className="grid grid-cols-2 gap-4">
-        {gridSections.map((section) => {
+        {gridSections.filter(s => s.id !== 'daily-guidelines').map((section) => {
             const isCompleted = userState.completedSections.includes(section.id);
             
             return (

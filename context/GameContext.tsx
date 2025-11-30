@@ -8,6 +8,7 @@ interface GameContextType {
   userState: UserState;
   daysInApp: number;
   isAuthenticated: boolean;
+  isLoading: boolean;
   addXp: (amount: number) => void;
   completeSection: (sectionId: string, xp: number) => void;
   updateStats: (stats: UserState['stats']) => void;
@@ -58,30 +59,44 @@ const GameContext = createContext<GameContextType | undefined>(undefined);
 export const GameProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [currentUserEmail, setCurrentUserEmail] = useState<string | null>(localStorage.getItem('app_current_session'));
   const [userState, setUserState] = useState<UserState>(defaultState);
-  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(!!currentUserEmail);
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
 
   // Load User Data when Session Changes
   useEffect(() => {
-    if (currentUserEmail) {
-      const savedData = localStorage.getItem(`app_data_${currentUserEmail}`);
-      if (savedData) {
-        setUserState(JSON.parse(savedData));
-      } else {
-        setUserState(defaultState); // Should happen on fresh register
-      }
-      setIsAuthenticated(true);
-    } else {
-      setIsAuthenticated(false);
-      setUserState(defaultState);
-    }
+    const loadData = async () => {
+        // Only trigger loading if we don't have auth yet or email changed significantly
+        if (!isAuthenticated || (currentUserEmail && userState.name === 'Motivado' && userState.xp === 0)) {
+            setIsLoading(true);
+        }
+        
+        if (currentUserEmail) {
+          // Simulate small network delay for realism/consistency only on initial load
+          if (!isAuthenticated) await new Promise(resolve => setTimeout(resolve, 100));
+          
+          const savedData = localStorage.getItem(`app_data_${currentUserEmail}`);
+          if (savedData) {
+            setUserState(JSON.parse(savedData));
+          } else {
+             // Keep default if nothing saved yet
+          }
+          setIsAuthenticated(true);
+        } else {
+          setIsAuthenticated(false);
+          setUserState(defaultState);
+        }
+        setIsLoading(false);
+    };
+    
+    loadData();
   }, [currentUserEmail]);
 
   // Save User Data whenever state changes (if logged in)
   useEffect(() => {
-    if (currentUserEmail && isAuthenticated) {
+    if (currentUserEmail && isAuthenticated && !isLoading) {
       localStorage.setItem(`app_data_${currentUserEmail}`, JSON.stringify(userState));
     }
-  }, [userState, currentUserEmail, isAuthenticated]);
+  }, [userState, currentUserEmail, isAuthenticated, isLoading]);
 
   // AUTH ACTIONS
   const login = async (email: string, pass: string): Promise<boolean> => {
@@ -90,7 +105,19 @@ export const GameProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     
     if (users[email] && users[email].password === pass) {
       localStorage.setItem('app_current_session', email);
+      
+      // CRITICAL FIX: Manually load state and set Auth TRUE immediately.
+      // This prevents the race condition where the router checks Auth before the useEffect runs.
+      const savedData = localStorage.getItem(`app_data_${email}`);
+      if (savedData) {
+        setUserState(JSON.parse(savedData));
+      } else {
+         setUserState({ ...defaultState, name: users[email].name });
+      }
+
       setCurrentUserEmail(email);
+      setIsAuthenticated(true);
+      setIsLoading(false);
       return true;
     }
     return false;
@@ -116,6 +143,8 @@ export const GameProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     localStorage.setItem('app_current_session', email);
     setCurrentUserEmail(email);
     setUserState(newState);
+    setIsAuthenticated(true);
+    setIsLoading(false);
     return true;
   };
 
@@ -123,6 +152,7 @@ export const GameProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     localStorage.removeItem('app_current_session');
     setCurrentUserEmail(null);
     setIsAuthenticated(false);
+    setUserState(defaultState);
   };
 
   // --- GAME LOGIC ---
@@ -142,7 +172,7 @@ export const GameProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
   // Daily Streak Logic
   useEffect(() => {
-    if (!isAuthenticated) return;
+    if (!isAuthenticated || isLoading) return;
     
     const today = new Date().toISOString().split('T')[0];
     if (userState.lastLoginDate !== today) {
@@ -164,7 +194,7 @@ export const GameProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
           water: { ...prev.water, current: 0 } 
       }));
     }
-  }, [isAuthenticated, userState.lastLoginDate]);
+  }, [isAuthenticated, userState.lastLoginDate, isLoading]);
 
   const getThemeConfig = () => {
     const themeId = userState.activeCosmetics.theme;
@@ -229,11 +259,18 @@ export const GameProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   };
 
   const completeOnboarding = (data: any) => {
-    setUserState(prev => ({
-        ...prev,
-        stats: { ...prev.stats, ...data, activityLevel: 1.2, bmr: 0, tdee: 0 }, // Init defaults
+    // Force immediate save to prevent race conditions or closing app before sync
+    const updatedState: UserState = {
+        ...userState,
+        stats: { ...userState.stats, ...data, activityLevel: 1.2, bmr: 0, tdee: 0 },
         onboardingCompleted: true
-    }));
+    };
+    
+    setUserState(updatedState);
+    if (currentUserEmail) {
+        localStorage.setItem(`app_data_${currentUserEmail}`, JSON.stringify(updatedState));
+    }
+    
     triggerConfetti();
     addXp(100);
   };
@@ -309,7 +346,7 @@ export const GameProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
   return (
     <GameContext.Provider value={{ 
-        userState, daysInApp, isAuthenticated, addXp, completeSection, updateStats, updateWater, triggerConfetti, 
+        userState, daysInApp, isAuthenticated, isLoading, addXp, completeSection, updateStats, updateWater, triggerConfetti, 
         startChallenge, resetChallenge, logChallengeWeight, updateProfile, buyItem, equipItem, login, register, logout, completeOnboarding,
         themeConfig: getThemeConfig()
     }}>

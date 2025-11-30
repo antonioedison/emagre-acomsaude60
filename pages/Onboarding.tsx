@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useGame } from '../context/GameContext';
@@ -7,8 +8,15 @@ import { SECTIONS } from '../constants';
 
 const Onboarding: React.FC = () => {
   const navigate = useNavigate();
-  const { completeOnboarding } = useGame();
+  const { completeOnboarding, userState } = useGame();
   
+  // Security Check: If user already completed onboarding, redirect to Home immediately
+  useEffect(() => {
+    if (userState.onboardingCompleted) {
+        navigate('/', { replace: true });
+    }
+  }, [userState.onboardingCompleted, navigate]);
+
   // Ref for scrolling container
   const scrollRef = useRef<HTMLDivElement>(null);
 
@@ -148,6 +156,9 @@ const Onboarding: React.FC = () => {
     completeOnboarding(statsData);
     navigate('/');
   };
+
+  // If already completed, don't render content to avoid flash
+  if (userState.onboardingCompleted) return null;
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-brand-aqua to-brand-darkGreen flex items-center justify-center p-6">

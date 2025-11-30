@@ -290,7 +290,7 @@ export const SECTIONS: ContentSection[] = [
     xpReward: 110,
     contentType: 'daily-guidelines',
     data: {
-       intro: "Siga essas orientações para alcançar resultados, caso não consiga fazer nenhuma das receitas acima, tenha essas opções:",
+       intro: "Siga as orientações para alcançar os resultados, começando pela alimentação, faça 4 refeições diárias, tome água, pratique exercícios (Treino Tabata para perder peso), durma bem e opte pelos alimentos de baixo teor calórico.",
        meals: [
            {
                title: 'Café da Manhã',

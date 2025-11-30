@@ -4,10 +4,22 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Play, Pause, RefreshCw } from 'lucide-react';
 import { useGame } from '../context/GameContext';
 
+const EXERCISES_DATA = [
+  { name: "Jumping Jack (polichinelo)", emoji: "🤸", animation: "animate-bounce" },
+  { name: "Standing cross-body abs", emoji: "🧘", animation: "animate-pulse" },
+  { name: "Alternating Jump", emoji: "🏃", animation: "animate-bounce" },
+  { name: "Squat jump", emoji: "🦵", animation: "animate-bounce" },
+  { name: "Cross Jump", emoji: "🙅", animation: "animate-pulse" },
+  { name: "Butt kick", emoji: "🦶", animation: "animate-bounce" },
+  { name: "Split Jump", emoji: "🕴️", animation: "animate-bounce" },
+  { name: "Burpee", emoji: "🐸", animation: "animate-bounce" }
+];
+
 const Tabata: React.FC = () => {
   const { addXp, triggerConfetti } = useGame();
   
   const [isActive, setIsActive] = useState(false);
+  const [hasStarted, setHasStarted] = useState(false); // Tracks if session is in progress
   const [isWork, setIsWork] = useState(true); // true = work (20s), false = rest (10s)
   const [round, setRound] = useState(1);
   const [timeLeft, setTimeLeft] = useState(20);
@@ -52,6 +64,7 @@ const Tabata: React.FC = () => {
 
   const finishWorkout = () => {
     setIsActive(false);
+    setHasStarted(false);
     setIsWork(true);
     setRound(1);
     setTimeLeft(workTime);
@@ -60,10 +73,14 @@ const Tabata: React.FC = () => {
     alert("TREINO CONCLUÍDO! +200 XP");
   };
 
-  const toggleTimer = () => setIsActive(!isActive);
+  const toggleTimer = () => {
+      if (!isActive) setHasStarted(true);
+      setIsActive(!isActive);
+  };
 
   const resetTimer = () => {
     setIsActive(false);
+    setHasStarted(false);
     setIsWork(true);
     setRound(1);
     setTimeLeft(workTime);
@@ -73,20 +90,50 @@ const Tabata: React.FC = () => {
   const percentage = (timeLeft / maxTime) * 100;
   
   // SVG Config
-  const radius = 100;
+  const radius = 90; // Reduced size slightly
   const circumference = 2 * Math.PI * radius;
   const strokeOffset = circumference - (percentage / 100) * circumference;
 
+  const currentExercise = EXERCISES_DATA[round - 1];
+  const nextExercise = round < totalRounds ? EXERCISES_DATA[round] : null;
+
   return (
-    <div className="p-6 space-y-8">
+    <div className="p-4 space-y-3 pb-24">
       <div className="text-center">
-        <h1 className="text-3xl font-extrabold text-brand-darkGreen tracking-tight">TREINO TABATA</h1>
-        <p className="text-gray-500">Queime gordura em 4 minutos</p>
+        <h1 className="text-2xl font-extrabold text-brand-darkGreen tracking-tight">TREINO TABATA</h1>
+        <p className="text-gray-500 text-xs">Queime gordura em 4 minutos</p>
       </div>
 
-      {/* Timer Display */}
-      <div className="flex flex-col items-center justify-center">
-        <div className="relative w-60 h-60 flex items-center justify-center mb-10">
+      {/* O que é Tabata? (Compactado) */}
+      <div className="bg-white p-4 rounded-3xl shadow-sm border border-gray-100">
+        <div className="flex items-center gap-2 mb-2">
+            <span className="text-orange-500 text-lg">🔥</span>
+            <h3 className="text-base font-bold text-gray-800">O que é Treino Tabata?</h3>
+        </div>
+        
+        <p className="text-xs text-gray-600 mb-3 leading-relaxed">
+            Protocolo de treino de alta intensidade: <strong className="text-gray-800">20 segundos de exercício intenso</strong> seguidos de <strong className="text-gray-800">10 segundos de descanso</strong>, repetido por <strong className="text-gray-800">8 rounds (4 minutos)</strong>.
+        </p>
+
+        <div className="grid grid-cols-3 gap-2 text-center">
+            <div className="bg-red-50 p-1.5 rounded-xl border border-red-100">
+                <div className="text-lg font-black text-red-500">20s</div>
+                <div className="text-[9px] uppercase font-bold text-red-300">Trabalho</div>
+            </div>
+            <div className="bg-green-50 p-1.5 rounded-xl border border-green-100">
+                <div className="text-lg font-black text-green-500">10s</div>
+                <div className="text-[9px] uppercase font-bold text-green-300">Descanso</div>
+            </div>
+             <div className="bg-orange-50 p-1.5 rounded-xl border border-orange-100">
+                <div className="text-lg font-black text-orange-400">8x</div>
+                <div className="text-[9px] uppercase font-bold text-orange-300">Rounds</div>
+            </div>
+        </div>
+      </div>
+
+      {/* Timer Display (More Compact) */}
+      <div className="flex flex-col items-center justify-center -mt-2">
+        <div className="relative w-52 h-52 flex items-center justify-center mb-4">
             
             {/* SVG Progress Circle */}
             <svg className="absolute w-full h-full transform -rotate-90 drop-shadow-xl" viewBox="0 0 256 256">
@@ -96,7 +143,7 @@ const Tabata: React.FC = () => {
                     cy="128"
                     r={radius}
                     stroke="#F3F4F6"
-                    strokeWidth="18"
+                    strokeWidth="16"
                     fill="transparent"
                 />
                 
@@ -106,7 +153,7 @@ const Tabata: React.FC = () => {
                     cy="128"
                     r={radius}
                     stroke="currentColor"
-                    strokeWidth="18"
+                    strokeWidth="16"
                     fill="transparent"
                     strokeDasharray={circumference}
                     strokeDashoffset={strokeOffset}
@@ -116,118 +163,118 @@ const Tabata: React.FC = () => {
             </svg>
 
             <div className="text-center z-10">
-                <div className={`text-7xl font-black ${isWork ? 'text-brand-darkGreen' : 'text-yellow-600'}`}>
+                <div className={`text-6xl font-black ${isWork ? 'text-brand-darkGreen' : 'text-yellow-600'}`}>
                     {timeLeft}
                 </div>
-                <div className="text-lg font-bold text-gray-400 uppercase tracking-widest mt-2">
+                <div className="text-sm font-bold text-gray-400 uppercase tracking-widest mt-1">
                     {isWork ? 'Exercício' : 'Descanso'}
                 </div>
             </div>
         </div>
 
         {/* Rounds */}
-        <div className="flex space-x-2 mb-6">
+        <div className="flex space-x-2 mb-2">
             {Array.from({ length: totalRounds }).map((_, i) => (
                 <div 
                     key={i} 
-                    className={`h-3 w-8 rounded-full transition-colors ${i < round ? 'bg-brand-aqua' : i === round - 1 && isActive ? 'bg-brand-yellow animate-pulse' : 'bg-gray-200'}`}
+                    className={`h-2 w-6 rounded-full transition-colors ${i < round ? 'bg-brand-aqua' : i === round - 1 && hasStarted ? 'bg-brand-yellow animate-pulse' : 'bg-gray-200'}`}
                 />
             ))}
         </div>
       </div>
 
       {/* Controls */}
-      <div className="grid grid-cols-2 gap-4">
+      <div className="grid grid-cols-2 gap-3">
         <motion.button 
             whileTap={{ scale: 0.9 }}
             onClick={toggleTimer}
-            className={`flex items-center justify-center py-5 rounded-3xl shadow-xl text-white font-bold text-xl transition-colors ${isActive ? 'bg-red-500' : 'bg-brand-green'}`}
+            className={`flex items-center justify-center py-4 rounded-2xl shadow-xl text-white font-bold text-lg transition-colors ${isActive ? 'bg-red-500' : 'bg-brand-green'}`}
         >
-            {isActive ? <><Pause className="mr-2" /> PAUSAR</> : <><Play className="mr-2" /> INICIAR</>}
+            {isActive ? <><Pause className="mr-2" size={20} /> PAUSAR</> : <><Play className="mr-2" size={20} /> INICIAR</>}
         </motion.button>
 
         <motion.button 
             whileTap={{ scale: 0.9 }}
             onClick={resetTimer}
-            className="flex items-center justify-center py-5 rounded-3xl shadow-lg bg-white text-gray-500 font-bold text-xl border border-gray-200"
+            className="flex items-center justify-center py-4 rounded-2xl shadow-lg bg-white text-gray-500 font-bold text-lg border border-gray-200"
         >
-            <RefreshCw className="mr-2" /> RESET
+            <RefreshCw className="mr-2" size={20} /> RESET
         </motion.button>
       </div>
       
       {/* Informational Content Sections */}
-      <div className="space-y-6 pt-4">
+      <div className="space-y-3 pt-2">
           
-          {/* O que é Tabata? */}
-          <div className="bg-white p-5 rounded-3xl shadow-sm border border-gray-100">
-            <div className="flex items-center gap-2 mb-3">
-                <span className="text-orange-500 text-xl">🔥</span>
-                <h3 className="text-lg font-bold text-gray-800">O que é Tabata?</h3>
-            </div>
-            
-            <p className="text-sm text-gray-600 mb-4 leading-relaxed">
-                Protocolo de treino de alta intensidade: <strong className="text-gray-800">20 segundos de exercício intenso</strong> seguidos de <strong className="text-gray-800">10 segundos de descanso</strong>, repetido por <strong className="text-gray-800">8 rounds (4 minutos)</strong>.
-            </p>
-
-            <div className="grid grid-cols-3 gap-2 text-center">
-                <div className="bg-red-50 p-2 rounded-xl border border-red-100">
-                    <div className="text-xl font-black text-red-500">20s</div>
-                    <div className="text-[10px] uppercase font-bold text-red-300">Trabalho</div>
-                </div>
-                <div className="bg-green-50 p-2 rounded-xl border border-green-100">
-                    <div className="text-xl font-black text-green-500">10s</div>
-                    <div className="text-[10px] uppercase font-bold text-green-300">Descanso</div>
-                </div>
-                 <div className="bg-orange-50 p-2 rounded-xl border border-orange-100">
-                    <div className="text-xl font-black text-orange-400">8x</div>
-                    <div className="text-[10px] uppercase font-bold text-orange-300">Rounds</div>
-                </div>
-            </div>
-          </div>
-
-          {/* Exercícios do Treino (New Section) */}
-          <div className="bg-white p-5 rounded-3xl shadow-sm border border-gray-100">
-            <div className="flex items-center gap-2 mb-3">
-                <span className="text-blue-500 text-xl">💪</span>
-                <h3 className="text-lg font-bold text-gray-800">Exercícios do Treino</h3>
-            </div>
-            <ul className="space-y-2">
-                {[
-                    "Jumping Jack (polichinelo)",
-                    "Standing cross-body abdominal exercise",
-                    "Alternating Jump",
-                    "Squat jump",
-                    "Cross Jump",
-                    "Butt kick",
-                    "Split Jump",
-                    "Burpee"
-                ].map((ex, i) => (
-                    <li key={i} className="flex items-center gap-3 bg-gray-50 p-3 rounded-xl border border-gray-100">
-                        <span className="bg-brand-aqua text-white w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0 shadow-sm">
-                            {i + 1}
+          {/* Guia Animado do Exercício Atual (Só aparece quando iniciado) */}
+          <AnimatePresence>
+            {hasStarted && (
+                <motion.div 
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, scale: 0.9 }}
+                    className={`p-4 rounded-3xl shadow-lg text-center border-4 ${isWork ? 'bg-brand-light border-brand-aqua' : 'bg-yellow-50 border-brand-yellow'}`}
+                >
+                    <div className="flex justify-between items-center mb-1">
+                        <span className={`text-[10px] font-black uppercase px-2 py-0.5 rounded-full ${isWork ? 'bg-brand-aqua text-white' : 'bg-brand-yellow text-yellow-900'}`}>
+                            {isWork ? `Round ${round}/8` : 'Intervalo'}
                         </span>
-                        <span className="text-sm font-medium text-gray-700">{ex}</span>
+                        {!isWork && nextExercise && (
+                            <span className="text-[10px] font-bold text-gray-400">Próximo: {nextExercise.name}</span>
+                        )}
+                    </div>
+                    
+                    <div className="py-1">
+                        {isWork ? (
+                            <>
+                                <div className={`text-5xl mb-2 inline-block ${isActive ? currentExercise.animation : ''}`}>
+                                    {currentExercise.emoji}
+                                </div>
+                                <h3 className="text-lg font-black text-gray-800 leading-tight">
+                                    {currentExercise.name}
+                                </h3>
+                            </>
+                        ) : (
+                            <>
+                                <div className="text-4xl mb-1 animate-pulse">😰</div>
+                                <h3 className="text-lg font-black text-gray-600">Respire Fundo!</h3>
+                                <p className="text-xs font-medium text-gray-400 mt-0.5">Prepare-se para o próximo</p>
+                            </>
+                        )}
+                    </div>
+                </motion.div>
+            )}
+          </AnimatePresence>
+
+          {/* Exercícios do Treino (Lista Compacta) */}
+          <div className="bg-white p-4 rounded-3xl shadow-sm border border-gray-100">
+            <ul className="space-y-1">
+                {EXERCISES_DATA.map((ex, i) => (
+                    <li key={i} className={`flex items-center gap-2 p-2 rounded-xl border transition-colors ${hasStarted && round === i + 1 ? 'bg-brand-aqua/10 border-brand-aqua ring-1 ring-brand-aqua' : 'bg-gray-50 border-gray-100'}`}>
+                        <span className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0 shadow-sm ${hasStarted && round === i + 1 ? 'bg-brand-aqua text-white' : 'bg-white text-gray-400'}`}>
+                            {hasStarted && round === i + 1 ? ex.emoji : i + 1}
+                        </span>
+                        <span className={`text-xs font-medium ${hasStarted && round === i + 1 ? 'text-brand-darkGreen font-bold' : 'text-gray-700'}`}>
+                            {ex.name}
+                        </span>
                     </li>
                 ))}
             </ul>
           </div>
 
           {/* Benefícios */}
-          <div className="bg-gradient-to-br from-orange-500 to-red-500 p-6 rounded-3xl shadow-lg text-white">
-             <div className="flex items-center gap-2 mb-4">
-                <span className="text-2xl">🚀</span>
-                <h3 className="text-xl font-bold">Benefícios</h3>
+          <div className="bg-gradient-to-br from-orange-500 to-red-500 p-4 rounded-3xl shadow-lg text-white">
+             <div className="flex items-center gap-2 mb-2">
+                <span className="text-xl">🚀</span>
+                <h3 className="text-base font-bold">Benefícios</h3>
             </div>
-            <ul className="space-y-3">
+            <ul className="space-y-2">
                 {[
                     "Queima até 15 calorias por minuto",
-                    "Aumenta metabolismo por 24-48 horas",
-                    "Melhora condicionamento cardiovascular",
-                    "Pode ser feito em qualquer lugar",
-                    "Resultado em apenas 4 minutos",
-                    "Preserva massa muscular"
+                    "Aumenta metabolismo por 24-48h",
+                    "Melhora cardio e massa muscular",
+                    "Apenas 4 minutos do seu dia"
                 ].map((item, i) => (
-                    <li key={i} className="flex items-start text-sm font-medium opacity-95">
+                    <li key={i} className="flex items-start text-xs font-medium opacity-95">
                         <span className="mr-2 font-bold mt-0.5">✓</span>
                         {item}
                     </li>
