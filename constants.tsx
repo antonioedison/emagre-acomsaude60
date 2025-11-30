@@ -298,9 +298,9 @@ export const SECTIONS: ContentSection[] = [
                color: 'orange',
                items: [
                    '1 pão francês',
-                   '1 ovo frito ou mexido na frigideira untada com óleo (pouquíssimo óleo) <span class="text-xs text-gray-500 italic">(5g proteína e 5g gordura)</span>',
-                   '1 fatia de mussuarela (25g) <span class="text-xs text-gray-500 italic">(7g proteína e 4g gordura)</span>',
-                   '1 café com leite'
+                   '1 ovo frito ou mexido na frigideira untada com óleo (pouquíssimo óleo) <span class="text-xs text-gray-500 italic">(o ovo tem 5g proteína e 5g gordura)</span>',
+                   '1 (uma) fatia de mussuarela (25g) <span class="text-xs text-gray-500 italic">(7g proteína e 4g gordura)</span>',
+                   '1 (uma) xícara de café com leite com pouquíssima açúcar (use açúcar demerara)'
                ]
            },
            {
@@ -309,8 +309,8 @@ export const SECTIONS: ContentSection[] = [
                color: 'blue',
                items: [
                    'Filé de frango <strong class="text-xs uppercase">OU</strong> carne moída',
-                   '1 escumadeira de Arroz',
-                   '1 concha de feijão',
+                   '1 (uma) escumadeira de Arroz',
+                   '1 (uma) concha de feijão',
                    'Salada, metade do seu prato'
                ]
            },
@@ -329,8 +329,8 @@ export const SECTIONS: ContentSection[] = [
                icon: 'Moon',
                color: 'indigo',
                items: [
-                   '1 escumadeira de Arroz',
-                   '1 concha de feijão',
+                   '1 (uma) escumadeira de Arroz',
+                   '1 (uma) concha de feijão',
                    '1 a 2 Ovos',
                    'Legumes e verduras',
                    'Salada Metade do seu prato'

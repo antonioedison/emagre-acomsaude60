@@ -28,6 +28,46 @@ const Tabata: React.FC = () => {
   const workTime = 20;
   const restTime = 10;
   const timerRef = useRef<number | null>(null);
+  
+  // Reference for the Wake Lock Sentinel
+  const wakeLockRef = useRef<any>(null);
+
+  // Screen Wake Lock Logic
+  useEffect(() => {
+    const requestWakeLock = async () => {
+      try {
+        if ('wakeLock' in navigator) {
+          wakeLockRef.current = await (navigator as any).wakeLock.request('screen');
+          console.log('Screen Wake Lock active');
+        }
+      } catch (err) {
+        console.error(`${err} - Screen Wake Lock not supported or rejected`);
+      }
+    };
+
+    const releaseWakeLock = async () => {
+      if (wakeLockRef.current) {
+        try {
+          await wakeLockRef.current.release();
+          wakeLockRef.current = null;
+          console.log('Screen Wake Lock released');
+        } catch (err) {
+          console.error(err);
+        }
+      }
+    };
+
+    if (isActive) {
+      requestWakeLock();
+    } else {
+      releaseWakeLock();
+    }
+
+    // Cleanup on unmount
+    return () => {
+      releaseWakeLock();
+    };
+  }, [isActive]);
 
   useEffect(() => {
     if (isActive && timeLeft > 0) {
