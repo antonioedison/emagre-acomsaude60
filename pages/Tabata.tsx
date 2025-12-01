@@ -1,18 +1,20 @@
 
 import React, { useState, useEffect, useRef } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 import { Play, Pause, RefreshCw } from 'lucide-react';
 import { useGame } from '../context/GameContext';
 
+// Atualizado para incluir referência a arquivos de vídeo
+// Nota: O usuário deve adicionar os arquivos .mp4 na pasta public/videos/ com estes nomes
 const EXERCISES_DATA = [
-  { name: "Jumping Jack (polichinelo)", emoji: "🤸", animation: "animate-bounce" },
-  { name: "Standing cross-body abs", emoji: "🧘", animation: "animate-pulse" },
-  { name: "Alternating Jump", emoji: "🏃", animation: "animate-bounce" },
-  { name: "Squat jump", emoji: "🦵", animation: "animate-bounce" },
-  { name: "Cross Jump", emoji: "🙅", animation: "animate-pulse" },
-  { name: "Butt kick", emoji: "🦶", animation: "animate-bounce" },
-  { name: "Split Jump", emoji: "🕴️", animation: "animate-bounce" },
-  { name: "Burpee", emoji: "🐸", animation: "animate-bounce" }
+  { name: "Jumping Jack", emoji: "🤸", animation: "animate-jumping-jack", video: "polichinelo.mp4" },
+  { name: "Standing Cross Crunches", emoji: "🧘", animation: "animate-twist", video: "abdominais.mp4" },
+  { name: "Alternating Jump", emoji: "🏃", animation: "animate-alt-jump", video: "salto_alternado.mp4" },
+  { name: "Squat jump", emoji: "🦵", animation: "animate-squat-jump", video: "agachamento_salto.mp4" },
+  { name: "Cross Jump", emoji: "🙅", animation: "animate-cross-jump", video: "salto_cruzado.mp4" },
+  { name: "Butt kick", emoji: "🦶", animation: "animate-butt-kick", video: "chute_gluteo.mp4" },
+  { name: "Split Jump", emoji: "🕴️", animation: "animate-split-jump", video: "salto_abertura.mp4" },
+  { name: "Burpee", emoji: "🐸", animation: "animate-burpee", video: "burpee.mp4" }
 ];
 
 const Tabata: React.FC = () => {
@@ -134,9 +136,6 @@ const Tabata: React.FC = () => {
   const circumference = 2 * Math.PI * radius;
   const strokeOffset = circumference - (percentage / 100) * circumference;
 
-  const currentExercise = EXERCISES_DATA[round - 1];
-  const nextExercise = round < totalRounds ? EXERCISES_DATA[round] : null;
-
   return (
     <div className="p-4 space-y-3 pb-24">
       <div className="text-center">
@@ -245,46 +244,6 @@ const Tabata: React.FC = () => {
       {/* Informational Content Sections */}
       <div className="space-y-3 pt-2">
           
-          {/* Guia Animado do Exercício Atual (Só aparece quando iniciado) */}
-          <AnimatePresence>
-            {hasStarted && (
-                <motion.div 
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, scale: 0.9 }}
-                    className={`p-4 rounded-3xl shadow-lg text-center border-4 ${isWork ? 'bg-brand-light border-brand-aqua' : 'bg-yellow-50 border-brand-yellow'}`}
-                >
-                    <div className="flex justify-between items-center mb-1">
-                        <span className={`text-[10px] font-black uppercase px-2 py-0.5 rounded-full ${isWork ? 'bg-brand-aqua text-white' : 'bg-brand-yellow text-yellow-900'}`}>
-                            {isWork ? `Round ${round}/8` : 'Intervalo'}
-                        </span>
-                        {!isWork && nextExercise && (
-                            <span className="text-[10px] font-bold text-gray-400">Próximo: {nextExercise.name}</span>
-                        )}
-                    </div>
-                    
-                    <div className="py-1">
-                        {isWork ? (
-                            <>
-                                <div className={`text-5xl mb-2 inline-block ${isActive ? currentExercise.animation : ''}`}>
-                                    {currentExercise.emoji}
-                                </div>
-                                <h3 className="text-lg font-black text-gray-800 leading-tight">
-                                    {currentExercise.name}
-                                </h3>
-                            </>
-                        ) : (
-                            <>
-                                <div className="text-4xl mb-1 animate-pulse">😰</div>
-                                <h3 className="text-lg font-black text-gray-600">Respire Fundo!</h3>
-                                <p className="text-xs font-medium text-gray-400 mt-0.5">Prepare-se para o próximo</p>
-                            </>
-                        )}
-                    </div>
-                </motion.div>
-            )}
-          </AnimatePresence>
-
           {/* Exercícios do Treino (Lista Compacta) */}
           <div className="bg-white p-4 rounded-3xl shadow-sm border border-gray-100">
             <ul className="space-y-1">
