@@ -1,4 +1,3 @@
-
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import confetti from 'canvas-confetti';
 import { UserState, ShopItem } from '../types';
@@ -17,6 +16,7 @@ interface GameContextType {
   triggerConfetti: () => void;
   startChallenge: (weight: number, loss: number) => void;
   logChallengeWeight: (weight: number, date: string) => void;
+  deleteChallengeLog: (index: number) => void;
   resetChallenge: () => void;
   updateProfile: (name: string, avatar: string) => void;
   buyItem: (item: ShopItem) => void;
@@ -301,10 +301,25 @@ export const GameProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         ...prev,
         challenge: {
             ...prev.challenge,
-            logs: [...prev.challenge.logs, { date, weight }]
+            logs: [...(prev.challenge.logs || []), { date, weight }]
         }
     }));
     triggerConfetti();
+  };
+
+  const deleteChallengeLog = (index: number) => {
+    // No confirmation needed, immediate deletion
+    setUserState(prev => {
+        const newLogs = [...(prev.challenge.logs || [])];
+        newLogs.splice(index, 1);
+        return {
+            ...prev,
+            challenge: {
+                ...prev.challenge,
+                logs: newLogs
+            }
+        };
+    });
   };
 
   const resetChallenge = () => {
@@ -347,7 +362,7 @@ export const GameProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   return (
     <GameContext.Provider value={{ 
         userState, daysInApp, isAuthenticated, isLoading, addXp, completeSection, updateStats, updateWater, triggerConfetti, 
-        startChallenge, resetChallenge, logChallengeWeight, updateProfile, buyItem, equipItem, login, register, logout, completeOnboarding,
+        startChallenge, resetChallenge, logChallengeWeight, deleteChallengeLog, updateProfile, buyItem, equipItem, login, register, logout, completeOnboarding,
         themeConfig: getThemeConfig()
     }}>
       {children}

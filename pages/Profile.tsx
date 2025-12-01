@@ -1,17 +1,17 @@
-
 import React, { useState } from 'react';
 import { useGame } from '../context/GameContext';
 import { LEVEL_THRESHOLDS, AVATARS, SHOP_ITEMS } from '../constants';
-import { Edit2, TrendingUp, Sparkles, Check, Lock, Store, LogOut, Target, Activity, ThumbsUp, Calendar } from 'lucide-react';
-import { motion } from 'framer-motion';
+import { Edit2, TrendingUp, Sparkles, Check, Lock, Store, LogOut, Target, Activity, ThumbsUp, Calendar, X } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
 
 const Profile: React.FC = () => {
-  const { userState, updateProfile, buyItem, equipItem, themeConfig, logout } = useGame();
+  const { userState, updateProfile, buyItem, equipItem, themeConfig, logout, deleteChallengeLog } = useGame();
   const nextLevelXp = LEVEL_THRESHOLDS[userState.level] || 10000;
   
   const [isEditing, setIsEditing] = useState(false);
   const [tempName, setTempName] = useState(userState.name);
   const [showAvatarSelector, setShowAvatarSelector] = useState(false);
+  const [selectedLogIndex, setSelectedLogIndex] = useState<number | null>(null);
 
   const handleSaveProfile = () => {
     updateProfile(tempName, userState.avatar);
@@ -233,20 +233,49 @@ const Profile: React.FC = () => {
                 <Calendar size={16} className="text-brand-aqua" />
                 Histórico do Desafio
              </h3>
-             <div className="flex gap-3 overflow-x-auto no-scrollbar pb-2">
+             <div className="flex gap-3 overflow-x-auto no-scrollbar pb-4 pt-2 px-1">
                  {[...userState.challenge.logs].reverse().map((log, i) => {
+                     // Calculate the original index in the main logs array
+                     const originalIndex = userState.challenge.logs.length - 1 - i;
                      const dateParts = formatDateParts(getSafeDate(log.date));
+                     const isSelected = selectedLogIndex === i;
+                     
                      return (
-                         <div key={i} className="flex-shrink-0 flex flex-col items-center gap-2">
-                             <div className="bg-orange-50 text-orange-600 rounded-lg p-1.5 min-w-[50px] text-center border border-orange-100 shadow-sm">
+                         <div 
+                            key={`${log.date}-${log.weight}-${i}`} 
+                            onClick={() => setSelectedLogIndex(isSelected ? null : i)}
+                            className={`flex-shrink-0 flex flex-col items-center gap-2 relative group cursor-pointer transition-all ${isSelected ? 'scale-105' : ''}`}
+                         >
+                             <div className={`bg-orange-50 text-orange-600 rounded-lg p-1.5 min-w-[50px] text-center border shadow-sm relative transition-all ${isSelected ? 'border-orange-300 ring-2 ring-orange-100' : 'border-orange-100'}`}>
                                 <div className="text-[9px] font-bold uppercase leading-none mb-0.5">{dateParts.month}</div>
                                 <div className="text-lg font-black leading-none">{dateParts.day}</div>
                              </div>
                              <span className="text-xs font-bold text-gray-600 bg-gray-100 px-2 py-0.5 rounded-full">{log.weight}kg</span>
+                             
+                             {/* Delete Button - Only visible when selected */}
+                             <AnimatePresence>
+                                {isSelected && (
+                                    <motion.button 
+                                        initial={{ scale: 0, opacity: 0 }}
+                                        animate={{ scale: 1, opacity: 1 }}
+                                        exit={{ scale: 0, opacity: 0 }}
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                            deleteChallengeLog(originalIndex);
+                                            setSelectedLogIndex(null);
+                                        }}
+                                        className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1.5 shadow-md z-10"
+                                        title="Excluir Registro"
+                                    >
+                                        <X size={10} strokeWidth={3} />
+                                    </motion.button>
+                                )}
+                             </AnimatePresence>
                          </div>
                      );
                  })}
              </div>
+             <p className="text-[10px] text-gray-400 text-center italic mt-1">Toque na data para opções</p>
           </div>
       )}
 
