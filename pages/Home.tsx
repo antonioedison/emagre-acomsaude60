@@ -77,6 +77,8 @@ const Home: React.FC = () => {
   // Filter out the 'valuable-tips' section from the grid because it has a special button
   const gridSections = SECTIONS.filter(s => s.id !== 'valuable-tips' && s.id !== 'daily-guidelines');
 
+  const isPulseEffect = userState.activeCosmetics.effect === 'effect_pulse_card';
+
   return (
     <div className="p-4 space-y-6 pb-24 dark:text-gray-100 relative min-h-screen">
       
@@ -117,7 +119,7 @@ const Home: React.FC = () => {
          </div>
 
          {/* Motivational Quote Card - Replaces Streak */}
-         <div className="bg-gradient-to-r from-orange-500 to-red-500 rounded-3xl p-5 text-white relative overflow-hidden shadow-lg shadow-orange-200 dark:shadow-none flex items-center justify-between min-h-[100px]">
+         <div className={`bg-gradient-to-r from-orange-500 to-red-500 rounded-3xl p-5 text-white relative overflow-hidden shadow-lg shadow-orange-200 dark:shadow-none flex items-center justify-between min-h-[100px] transition-all ${isPulseEffect ? 'animate-pulse ring-4 ring-orange-300' : ''}`}>
             <div className="relative z-10 max-w-[85%]">
                <div className="flex items-center gap-2 mb-1 opacity-75">
                     <Quote size={16} fill="currentColor" />
@@ -128,7 +130,7 @@ const Home: React.FC = () => {
                </p>
             </div>
             <div className="relative z-10">
-                <Flame fill="currentColor" size={24} className="opacity-80" />
+                <Flame fill="currentColor" size={24} className={`opacity-80 ${isPulseEffect ? 'animate-pulse' : ''}`} />
             </div>
             {/* Decoration */}
             <Flame className="absolute right-[-15px] bottom-[-20px] opacity-10 w-32 h-32 rotate-12" />

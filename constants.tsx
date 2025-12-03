@@ -155,6 +155,15 @@ export const SHOP_ITEMS: ShopItem[] = [
     price: 300,
     rarity: 'rare',
     value: 'fire'
+  },
+  {
+    id: 'effect_pulse_card',
+    type: 'effect',
+    name: 'Motivação Pulsante',
+    description: 'Faz o card de motivação diária piscar.',
+    price: 300,
+    rarity: 'rare',
+    value: 'pulse_card'
   }
 ];
 

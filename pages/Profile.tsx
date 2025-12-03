@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import { useGame } from '../context/GameContext';
 import { LEVEL_THRESHOLDS, AVATARS, SHOP_ITEMS } from '../constants';
-import { Edit2, TrendingUp, Sparkles, Check, Lock, Store, LogOut, Target, Activity, ThumbsUp, Calendar, X, Moon, Sun, Flame, Palette } from 'lucide-react';
+import { Edit2, TrendingUp, Sparkles, Check, Lock, Store, LogOut, Target, Activity, ThumbsUp, Calendar, X, Moon, Sun, Flame, Palette, Power } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 const Profile: React.FC = () => {
@@ -68,6 +68,7 @@ const Profile: React.FC = () => {
         case 'frame_diamond': return { bg: 'bg-orange-400', icon: '💎' };
         case 'effect_none': return { bg: 'bg-gray-200', icon: '🚫' };
         case 'effect_fire': return { bg: 'bg-orange-600', icon: '🔥' };
+        case 'effect_pulse_card': return { bg: 'bg-rose-500', icon: '💓' };
         default: return { bg: 'bg-gray-200', icon: '📦' };
     }
   };
@@ -463,8 +464,67 @@ const Profile: React.FC = () => {
                                 </motion.div>
                             );
                         }
+                        
+                        // Special Logic for Effects (Toggleable)
+                        if (item.type === 'effect') {
+                            return (
+                                <motion.div
+                                    whileTap={{ scale: 0.98 }}
+                                    key={item.id}
+                                    className="bg-white dark:bg-slate-800 rounded-3xl shadow-sm border border-gray-100 dark:border-slate-700 overflow-hidden flex flex-col text-left group relative"
+                                >
+                                    <div className={`h-28 ${visual.bg} flex items-center justify-center text-4xl relative`}>
+                                        {visual.icon}
+                                        {isEquipped && (
+                                            <div className="absolute top-2 right-2 bg-white rounded-full p-1 shadow-md">
+                                                <Check size={14} className="text-green-500" strokeWidth={3} />
+                                            </div>
+                                        )}
+                                    </div>
 
-                        // Standard Items
+                                    <div className="p-4 flex flex-col flex-1 justify-between">
+                                        <div>
+                                            <span className={`${getRarityBadge(item.rarity)} text-[10px] font-bold px-2 py-0.5 rounded-full uppercase`}>
+                                                {getRarityLabel(item.rarity)}
+                                            </span>
+                                            <h4 className="font-bold text-gray-800 dark:text-white text-sm mt-2 leading-tight">{item.name}</h4>
+                                            <p className="text-xs text-gray-400 mt-1 line-clamp-2">{item.description}</p>
+                                        </div>
+
+                                        <div className="mt-4 flex items-center justify-between">
+                                            {isOwned ? (
+                                                <button 
+                                                    onClick={() => {
+                                                        if (isEquipped) {
+                                                            // Unequip (Set to none)
+                                                            const noneItem = SHOP_ITEMS.find(i => i.id === 'effect_none');
+                                                            if (noneItem) equipItem(noneItem);
+                                                        } else {
+                                                            equipItem(item);
+                                                        }
+                                                    }}
+                                                    className={`w-full py-2 rounded-xl text-xs font-bold flex items-center justify-center gap-2 transition-colors ${isEquipped ? 'bg-red-100 text-red-500 hover:bg-red-200' : 'bg-green-100 text-green-600 hover:bg-green-200'}`}
+                                                >
+                                                    {isEquipped ? <><Power size={14} /> DESATIVAR</> : <><Check size={14} /> ATIVAR</>}
+                                                </button>
+                                            ) : (
+                                                <button
+                                                    onClick={() => buyItem(item)}
+                                                    className="w-full flex items-center justify-between gap-1 text-orange-500 font-bold text-sm"
+                                                >
+                                                    <span>© {item.price}</span>
+                                                    <div className={`w-8 h-8 rounded-xl flex items-center justify-center transition-colors ${canAfford ? 'bg-orange-50 text-orange-500' : 'bg-gray-100 text-gray-300'}`}>
+                                                        <Lock size={14} />
+                                                    </div>
+                                                </button>
+                                            )}
+                                        </div>
+                                    </div>
+                                </motion.div>
+                            );
+                        }
+
+                        // Standard Items (Themes, Confetti, Frames - just Equip)
                         return (
                             <motion.button
                                 whileTap={{ scale: 0.98 }}
