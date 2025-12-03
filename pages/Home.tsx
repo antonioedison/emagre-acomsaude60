@@ -75,22 +75,29 @@ const Home: React.FC = () => {
       : "Inicie o desafio para transformar sua vida!";
 
   // Filter out the 'valuable-tips' section from the grid because it has a special button
-  const gridSections = SECTIONS.filter(s => s.id !== 'valuable-tips');
+  const gridSections = SECTIONS.filter(s => s.id !== 'valuable-tips' && s.id !== 'daily-guidelines');
 
   return (
-    <div className="p-4 space-y-6 pb-24">
+    <div className="p-4 space-y-6 pb-24 dark:text-gray-100 relative min-h-screen">
       
+      {/* Background Effect: Fire */}
+      {userState.activeCosmetics.effect === 'effect_fire' && (
+        <div className="fixed inset-0 z-0 flex items-center justify-center pointer-events-none overflow-hidden">
+            <Flame size={350} className="text-orange-500 opacity-5 animate-pulse" />
+        </div>
+      )}
+
       {/* --- NEW HEADER STATS SECTION (Scrolls with page) --- */}
-      <div className="space-y-4 pt-2">
+      <div className="space-y-4 pt-2 relative z-10">
          {/* Level Card */}
-         <div className="bg-white rounded-3xl p-5 shadow-sm border border-gray-100">
+         <div className="bg-white dark:bg-slate-800 rounded-3xl p-5 shadow-sm border border-gray-100 dark:border-slate-700">
             <div className="flex justify-between items-end mb-3">
                  <div className="flex items-center gap-3">
-                     <div className="bg-brand-yellow w-10 h-10 rounded-xl flex items-center justify-center text-white shadow-md shadow-yellow-200">
+                     <div className="bg-brand-yellow w-10 h-10 rounded-xl flex items-center justify-center text-white shadow-md shadow-yellow-200 dark:shadow-none">
                          <Zap fill="currentColor" size={20} />
                      </div>
                      <div>
-                         <h2 className="font-bold text-gray-800 text-lg leading-none">Nível {userState.level}</h2>
+                         <h2 className="font-bold text-gray-800 dark:text-white text-lg leading-none">Nível {userState.level}</h2>
                          <p className="text-xs text-gray-400 font-bold mt-1">{userState.xp}/{nextLevelXp} XP</p>
                      </div>
                  </div>
@@ -100,7 +107,7 @@ const Home: React.FC = () => {
                  </div>
             </div>
             {/* Progress Bar */}
-            <div className="w-full bg-gray-100 h-3 rounded-full overflow-hidden">
+            <div className="w-full bg-gray-100 dark:bg-slate-900 h-3 rounded-full overflow-hidden">
                 <motion.div 
                     initial={{ width: 0 }}
                     animate={{ width: `${progress}%` }}
@@ -110,7 +117,7 @@ const Home: React.FC = () => {
          </div>
 
          {/* Motivational Quote Card - Replaces Streak */}
-         <div className="bg-gradient-to-r from-orange-500 to-red-500 rounded-3xl p-5 text-white relative overflow-hidden shadow-lg shadow-orange-200 flex items-center justify-between min-h-[100px]">
+         <div className="bg-gradient-to-r from-orange-500 to-red-500 rounded-3xl p-5 text-white relative overflow-hidden shadow-lg shadow-orange-200 dark:shadow-none flex items-center justify-between min-h-[100px]">
             <div className="relative z-10 max-w-[85%]">
                <div className="flex items-center gap-2 mb-1 opacity-75">
                     <Quote size={16} fill="currentColor" />
@@ -129,43 +136,23 @@ const Home: React.FC = () => {
       </div>
 
       {/* Title Header */}
-      <div className="text-center py-2">
-        <h1 className="text-3xl font-extrabold text-green-600">
+      <div className="text-center py-2 relative z-10">
+        <h1 className="text-3xl font-extrabold text-green-600 dark:text-green-400">
           Emagreça com <span className="text-brand-yellow drop-shadow-sm stroke-black">Saúde</span>
         </h1>
-        <p className="text-gray-500 mt-1 text-sm font-medium">Seu guia diário para uma vida leve e saudável</p>
-      </div>
-
-      {/* Orientações Diárias / Plano Básico */}
-      <div className="pb-2">
-          {SECTIONS.filter(s => s.id === 'daily-guidelines').map((section) => (
-             <motion.button
-                key={section.id}
-                whileTap={{ scale: 0.98 }}
-                onClick={() => navigate(`/content/${section.id}`)}
-                className="w-full bg-white rounded-3xl p-5 shadow-sm border border-gray-100 flex items-center gap-4 text-left group"
-             >
-                <div className={`w-12 h-12 rounded-xl flex items-center justify-center text-white shadow-md ${section.color}`}>
-                    {getIcon(section.icon)}
-                </div>
-                <div className="flex-1">
-                    <h3 className="font-bold text-gray-800 text-lg">{section.title}</h3>
-                    <p className="text-xs text-gray-500 font-medium">{section.description}</p>
-                </div>
-             </motion.button>
-          ))}
+        <p className="text-gray-500 dark:text-gray-400 mt-1 text-sm font-medium">Seu guia diário para uma vida leve e saudável</p>
       </div>
 
       {/* 60-Day Challenge Section */}
-      <div className="bg-white rounded-3xl shadow-lg border border-gray-100 overflow-hidden">
+      <div className="bg-white dark:bg-slate-800 rounded-3xl shadow-lg border border-gray-100 dark:border-slate-700 overflow-hidden relative z-10">
         {!userState.challenge.isActive ? (
             // Inactive State: Form
             <div className="p-5">
                 <div className="flex items-center gap-2 mb-3">
                     <Calendar className="text-brand-aqua" size={24} />
-                    <h3 className="font-bold text-lg text-brand-darkGreen">Desafio 60 Dias</h3>
+                    <h3 className="font-bold text-lg text-brand-darkGreen dark:text-brand-aqua">Desafio 60 Dias</h3>
                 </div>
-                <p className="text-sm mb-4 text-gray-500 font-medium">Defina sua meta e acompanhe sua evolução diária!</p>
+                <p className="text-sm mb-4 text-gray-500 dark:text-gray-400 font-medium">Defina sua meta e acompanhe sua evolução diária!</p>
                 
                 <div className="space-y-4">
                     <div>
@@ -174,7 +161,7 @@ const Home: React.FC = () => {
                             type="number" 
                             value={challengeWeight}
                             onChange={(e) => setChallengeWeight(e.target.value)}
-                            className="w-full p-3 rounded-xl bg-gray-50 text-gray-800 font-bold outline-none border border-gray-200 focus:border-brand-aqua transition-colors"
+                            className="w-full p-3 rounded-xl bg-gray-50 dark:bg-slate-900 text-gray-800 dark:text-white font-bold outline-none border border-gray-200 dark:border-slate-700 focus:border-brand-aqua transition-colors"
                             placeholder="Ex: 80"
                         />
                     </div>
@@ -184,7 +171,7 @@ const Home: React.FC = () => {
                             type="number" 
                             value={challengeLoss}
                             onChange={(e) => setChallengeLoss(e.target.value)}
-                            className="w-full p-3 rounded-xl bg-gray-50 text-gray-800 font-bold outline-none border border-gray-200 focus:border-brand-aqua transition-colors"
+                            className="w-full p-3 rounded-xl bg-gray-50 dark:bg-slate-900 text-gray-800 dark:text-white font-bold outline-none border border-gray-200 dark:border-slate-700 focus:border-brand-aqua transition-colors"
                             placeholder="Ex: 5"
                         />
                     </div>
@@ -210,7 +197,7 @@ const Home: React.FC = () => {
             <div className="p-5">
                 <div className="flex justify-between items-start mb-4">
                     <div>
-                        <h3 className="font-bold text-brand-darkGreen text-lg flex items-center gap-2">
+                        <h3 className="font-bold text-brand-darkGreen dark:text-brand-aqua text-lg flex items-center gap-2">
                             <Calendar size={20} className="text-brand-aqua" /> 
                             Desafio 60 Dias
                         </h3>
@@ -227,7 +214,7 @@ const Home: React.FC = () => {
                 </div>
 
                 {/* Progress Bar */}
-                <div className="w-full bg-gray-100 h-4 rounded-full overflow-hidden mb-4 shadow-inner">
+                <div className="w-full bg-gray-100 dark:bg-slate-900 h-4 rounded-full overflow-hidden mb-4 shadow-inner">
                     <motion.div 
                         initial={{ width: 0 }}
                         animate={{ width: `${(daysPassed / 60) * 100}%` }}
@@ -235,22 +222,22 @@ const Home: React.FC = () => {
                     />
                 </div>
 
-                <div className="flex justify-between text-sm bg-gray-50 p-3 rounded-xl mb-4">
-                    <div className="flex flex-col items-center w-1/2 border-r border-gray-200">
+                <div className="flex justify-between text-sm bg-gray-50 dark:bg-slate-900 p-3 rounded-xl mb-4">
+                    <div className="flex flex-col items-center w-1/2 border-r border-gray-200 dark:border-slate-700">
                         <span className="text-gray-400 text-xs font-bold uppercase">Início</span>
-                        <span className="font-bold text-gray-700">{userState.challenge.startWeight} kg</span>
+                        <span className="font-bold text-gray-700 dark:text-white">{userState.challenge.startWeight} kg</span>
                     </div>
                     <div className="flex flex-col items-center w-1/2">
                         <span className="text-brand-aqua text-xs font-bold uppercase">Meta</span>
-                        <span className="font-bold text-brand-darkGreen">
+                        <span className="font-bold text-brand-darkGreen dark:text-green-400">
                             {(userState.challenge.startWeight - userState.challenge.targetLoss).toFixed(1)} kg
                         </span>
                     </div>
                 </div>
 
                 {/* Weight Log Section */}
-                <div className="border-t border-gray-100 pt-4 mt-2">
-                     <h4 className="text-sm font-bold text-gray-700 mb-2 flex items-center gap-2">
+                <div className="border-t border-gray-100 dark:border-slate-700 pt-4 mt-2">
+                     <h4 className="text-sm font-bold text-gray-700 dark:text-gray-300 mb-2 flex items-center gap-2">
                         <Scale size={16} className="text-brand-aqua" /> Registrar peso obtido
                      </h4>
                      <div className="flex gap-2">
@@ -258,14 +245,14 @@ const Home: React.FC = () => {
                             type="date" 
                             value={logDate}
                             onChange={(e) => setLogDate(e.target.value)}
-                            className="bg-gray-50 border border-gray-200 rounded-lg text-xs font-bold p-2 text-gray-600 outline-none w-[110px]"
+                            className="bg-gray-50 dark:bg-slate-900 border border-gray-200 dark:border-slate-700 rounded-lg text-xs font-bold p-2 text-gray-600 dark:text-gray-300 outline-none w-[110px]"
                          />
                          <input 
                             type="number" 
                             placeholder="Kg"
                             value={logWeight}
                             onChange={(e) => setLogWeight(e.target.value)}
-                            className="bg-gray-50 border border-gray-200 rounded-lg text-xs font-bold p-2 text-gray-800 outline-none w-[60px]"
+                            className="bg-gray-50 dark:bg-slate-900 border border-gray-200 dark:border-slate-700 rounded-lg text-xs font-bold p-2 text-gray-800 dark:text-white outline-none w-[60px]"
                          />
                          <button 
                             onClick={handleLogWeight}
@@ -280,8 +267,8 @@ const Home: React.FC = () => {
       </div>
 
       {/* Grid Menu */}
-      <div className="grid grid-cols-2 gap-4">
-        {gridSections.filter(s => s.id !== 'daily-guidelines').map((section) => {
+      <div className="grid grid-cols-2 gap-4 relative z-10">
+        {gridSections.map((section) => {
             const isCompleted = userState.completedSections.includes(section.id);
             
             return (
@@ -295,14 +282,14 @@ const Home: React.FC = () => {
                             navigate(`/content/${section.id}`);
                         }
                     }}
-                    className={`relative p-4 rounded-2xl shadow-lg flex flex-col items-center justify-between text-center min-h-[140px] overflow-hidden ${isCompleted ? 'bg-gray-100 opacity-90' : 'bg-white'}`}
+                    className={`relative p-4 rounded-2xl shadow-lg flex flex-col items-center justify-between text-center min-h-[140px] overflow-hidden ${isCompleted ? 'bg-gray-100 dark:bg-slate-700 opacity-90' : 'bg-white dark:bg-slate-800'}`}
                 >
                     <div className={`w-14 h-14 rounded-full flex items-center justify-center mb-3 shadow-md ${section.color}`}>
                         {getIcon(section.icon)}
                     </div>
                     <div>
-                        <h3 className="font-bold text-gray-800 leading-tight">{section.title}</h3>
-                        <p className="text-xs text-gray-400 mt-1">+{section.xpReward} XP</p>
+                        <h3 className="font-bold text-gray-800 dark:text-white leading-tight">{section.title}</h3>
+                        <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">+{section.xpReward} XP</p>
                     </div>
                     
                     {isCompleted && (
@@ -315,8 +302,28 @@ const Home: React.FC = () => {
         })}
       </div>
 
+      {/* Orientações Diárias / Plano Básico */}
+      <div className="pb-2 relative z-10">
+          {SECTIONS.filter(s => s.id === 'daily-guidelines').map((section) => (
+             <motion.button
+                key={section.id}
+                whileTap={{ scale: 0.98 }}
+                onClick={() => navigate(`/content/${section.id}`)}
+                className="w-full bg-white dark:bg-slate-800 rounded-3xl p-5 shadow-sm border border-gray-100 dark:border-slate-700 flex items-center gap-4 text-left group"
+             >
+                <div className={`w-12 h-12 rounded-xl flex items-center justify-center text-white shadow-md ${section.color}`}>
+                    {getIcon(section.icon)}
+                </div>
+                <div className="flex-1">
+                    <h3 className="font-bold text-gray-800 dark:text-white text-lg">{section.title}</h3>
+                    <p className="text-xs text-gray-500 dark:text-gray-400 font-medium">{section.description}</p>
+                </div>
+             </motion.button>
+          ))}
+      </div>
+
       {/* Dicas Valiosas Button */}
-      <div className="pb-10">
+      <div className="pb-10 relative z-10">
         <motion.button
             whileTap={{ scale: 0.95 }}
             onClick={() => navigate('/content/valuable-tips')}

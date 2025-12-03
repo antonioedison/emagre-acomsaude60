@@ -31,7 +31,7 @@ export interface ChallengeState {
   logs: ChallengeLog[]; // Registros de peso
 }
 
-export type ItemType = 'theme' | 'confetti' | 'frame';
+export type ItemType = 'theme' | 'confetti' | 'frame' | 'effect';
 export type Rarity = 'common' | 'rare' | 'epic' | 'legendary';
 
 export interface ShopItem {
@@ -81,6 +81,11 @@ export interface UserState {
     theme: string;
     confetti: string;
     frame: string;
+    effect?: string; // Background effect
+  };
+  preferences: {
+      darkMode: boolean;
+      pinkMode?: boolean;
   };
 }
 

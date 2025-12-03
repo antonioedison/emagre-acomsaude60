@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect, useRef } from 'react';
-import { motion } from 'framer-motion';
-import { Play, Pause, RefreshCw } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Play, Pause, RefreshCw, AlertTriangle, ChevronDown, ChevronUp } from 'lucide-react';
 import { useGame } from '../context/GameContext';
 
 // Atualizado para incluir referência a arquivos de vídeo
@@ -25,6 +25,7 @@ const Tabata: React.FC = () => {
   const [isWork, setIsWork] = useState(true); // true = work (20s), false = rest (10s)
   const [round, setRound] = useState(1);
   const [timeLeft, setTimeLeft] = useState(20);
+  const [showWarning, setShowWarning] = useState(false);
   
   const totalRounds = 8;
   const workTime = 20;
@@ -258,6 +259,72 @@ const Tabata: React.FC = () => {
                     </li>
                 ))}
             </ul>
+          </div>
+
+          {/* WARNING BUTTON */}
+          <div className="pt-2">
+            <button
+                onClick={() => setShowWarning(!showWarning)}
+                className="w-full bg-red-50 text-red-600 font-bold py-3 px-4 rounded-2xl border border-red-200 flex items-center justify-center gap-2 hover:bg-red-100 transition-colors shadow-sm"
+            >
+                <AlertTriangle size={20} />
+                Atenção clique aqui
+                {showWarning ? <ChevronUp size={20} /> : <ChevronDown size={20} />}
+            </button>
+            
+            <AnimatePresence>
+                {showWarning && (
+                    <motion.div
+                        initial={{ height: 0, opacity: 0 }}
+                        animate={{ height: 'auto', opacity: 1 }}
+                        exit={{ height: 0, opacity: 0 }}
+                        className="overflow-hidden"
+                    >
+                        <div className="bg-red-50 p-4 rounded-3xl border border-red-100 mt-2 text-sm text-gray-700 space-y-4 shadow-inner">
+                            <div>
+                                <h4 className="font-bold text-red-700 text-lg mb-1 flex items-center gap-2">
+                                    <AlertTriangle size={18} /> Atenção
+                                </h4>
+                                <p className="leading-relaxed">
+                                    Antes de fazer os exercícios do treino Tabata, é importante você tomar algumas precauções para evitar possíveis lesões, tonturas e vertigem em caso de estar sendo executado com a técnica inadequada, especialmente por ser um treino de alta intensidade o risco aumenta devido à rapidez e à fadiga muscular que o método Tabata impõe.
+                                </p>
+                            </div>
+
+                            <div className="bg-white p-3 rounded-2xl border border-red-100">
+                                <h5 className="font-bold text-red-600 mb-2 uppercase text-xs tracking-wider">Como Minimizar os Riscos</h5>
+                                <ul className="space-y-3">
+                                    <li>
+                                        <strong className="text-gray-900 block mb-1">Aprenda a técnica correta:</strong>
+                                        Priorize uma forma confortável sem muita velocidade, especialmente no início. Mantenha o abdômen contraído e a coluna reta durante todo o movimento.
+                                    </li>
+                                    <li>
+                                        <strong className="text-gray-900 block mb-1">Progrida gradualmente:</strong>
+                                        Se você é iniciante, comece com o primeiro exercício de forma lenta e controlada, repita só ele nos 8 rounds, e vá subindo de nível aos poucos fazendo cada exercício por vez, até aprender fazer corretamente, mais não tenha pressa, se sentir muita dificuldade faça no seu tempo e depois vá aumentando a intensidade conforme seu condicionamento físico e a técnica melhorar.
+                                    </li>
+                                    <li>
+                                        <strong className="text-gray-900 block mb-1">Aquecimento:</strong>
+                                        Nunca pule o aquecimento. Ele prepara os músculos e articulações para a intensidade do exercício.
+                                    </li>
+                                    <li>
+                                        <strong className="text-gray-900 block mb-1">Ouça seu corpo:</strong>
+                                        Em um treino Tabata, o objetivo é o esforço máximo, mas a dor é um sinal de alerta. Se sentir dor aguda, pare imediatamente.
+                                    </li>
+                                    <li>
+                                        <strong className="text-gray-900 block mb-1">Consulte um profissional:</strong>
+                                        Um educador físico pode orientar sobre a técnica correta e adaptar o exercício às suas necessidades e limitações.
+                                    </li>
+                                </ul>
+                            </div>
+
+                            <div className="bg-red-100 p-3 rounded-2xl border border-red-200">
+                                <p className="text-red-800 font-medium italic">
+                                    "O exercício Burpee é o mais difícil de se executar, ainda mais fazendo várias repetições, faça de forma lenta, você pode só caminhar com os pés para trás em vez de saltar, a princípio faça poucas repetições priorizando sua energia evitando extremo cansaço."
+                                </p>
+                            </div>
+                        </div>
+                    </motion.div>
+                )}
+            </AnimatePresence>
           </div>
 
           {/* Benefícios */}

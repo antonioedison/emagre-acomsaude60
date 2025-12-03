@@ -7,6 +7,7 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
       tailwind.config = {
+        darkMode: 'class', // Enable manual dark mode toggle
         theme: {
           extend: {
             colors: {
@@ -97,6 +98,21 @@
       .no-scrollbar {
         -ms-overflow-style: none;
         scrollbar-width: none;
+      }
+      
+      /* PINK MODE OVERRIDES */
+      html.pink-theme body {
+        background-color: #fdf2f8 !important; /* pink-50 */
+      }
+      html.pink-theme .bg-slate-50 {
+        background-color: #fdf2f8 !important; /* pink-50 */
+      }
+      html.pink-theme .bg-gray-50 {
+        background-color: #fff1f2 !important; /* rose-50 */
+      }
+      html.pink-theme .bg-white {
+        /* Optional: Tint white cards slightly or keep white for contrast. Keeping white is usually cleaner. */
+        /* background-color: #fff0f5 !important; */
       }
     </style>
   <script type="importmap">

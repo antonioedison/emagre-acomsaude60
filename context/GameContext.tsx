@@ -1,3 +1,4 @@
+
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import confetti from 'canvas-confetti';
 import { UserState, ShopItem } from '../types';
@@ -21,6 +22,8 @@ interface GameContextType {
   updateProfile: (name: string, avatar: string) => void;
   buyItem: (item: ShopItem) => void;
   equipItem: (item: ShopItem) => void;
+  toggleDarkMode: () => void;
+  togglePinkMode: () => void;
   themeConfig: any;
   login: (email: string, pass: string) => Promise<boolean>;
   register: (name: string, email: string, pass: string) => Promise<boolean>;
@@ -38,11 +41,12 @@ const defaultState: UserState = {
   name: 'Motivado',
   avatar: 'woman_blonde',
   onboardingCompleted: false, // Default false
-  inventory: ['theme_default', 'confetti_default', 'frame_none'],
+  inventory: ['theme_default', 'confetti_default', 'frame_none', 'effect_none'],
   activeCosmetics: {
     theme: 'theme_default',
     confetti: 'confetti_default',
-    frame: 'frame_none'
+    frame: 'frame_none',
+    effect: 'effect_none'
   },
   water: { current: 0, goal: 8 },
   challenge: {
@@ -51,6 +55,10 @@ const defaultState: UserState = {
     startWeight: 0,
     targetLoss: 0,
     logs: []
+  },
+  preferences: {
+      darkMode: false,
+      pinkMode: false
   }
 };
 
@@ -97,6 +105,22 @@ export const GameProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       localStorage.setItem(`app_data_${currentUserEmail}`, JSON.stringify(userState));
     }
   }, [userState, currentUserEmail, isAuthenticated, isLoading]);
+
+  // Apply Dark Mode Class
+  useEffect(() => {
+    if (userState.preferences?.darkMode) {
+        document.documentElement.classList.add('dark');
+        document.documentElement.classList.remove('pink-theme'); // Dark mode wins
+    } else {
+        document.documentElement.classList.remove('dark');
+        // Apply Pink Mode if enabled and Dark Mode is OFF
+        if (userState.preferences?.pinkMode) {
+             document.documentElement.classList.add('pink-theme');
+        } else {
+             document.documentElement.classList.remove('pink-theme');
+        }
+    }
+  }, [userState.preferences]);
 
   // AUTH ACTIONS
   const login = async (email: string, pass: string): Promise<boolean> => {
@@ -170,31 +194,58 @@ export const GameProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
   const daysInApp = calculateDaysInApp();
 
-  // Daily Streak Logic
+  // Daily Streak & Water Reset Logic
   useEffect(() => {
     if (!isAuthenticated || isLoading) return;
-    
-    const today = new Date().toISOString().split('T')[0];
-    if (userState.lastLoginDate !== today) {
-      const lastDate = new Date(userState.lastLoginDate);
-      const diffTime = Math.abs(new Date().getTime() - lastDate.getTime());
-      const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)); 
 
-      let newStreak = userState.streak;
-      if (diffDays === 1) {
-        newStreak += 1; // Consecutive day
-      } else if (diffDays > 1) {
-        newStreak = 1; // Streak broken
-      }
+    const performDayCheck = () => {
+        const today = new Date().toISOString().split('T')[0];
+        
+        // Only update if the stored date is different from today
+        if (userState.lastLoginDate !== today) {
+            const lastDate = new Date(userState.lastLoginDate);
+            // Fix timezone offset issues by using local date components
+            const d1 = new Date(lastDate.getFullYear(), lastDate.getMonth(), lastDate.getDate());
+            const now = new Date();
+            const d2 = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+            
+            const diffTime = d2.getTime() - d1.getTime();
+            const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24)); 
 
-      setUserState(prev => ({ 
-          ...prev, 
-          lastLoginDate: today, 
-          streak: newStreak,
-          water: { ...prev.water, current: 0 } 
-      }));
-    }
-  }, [isAuthenticated, userState.lastLoginDate, isLoading]);
+            let newStreak = userState.streak;
+            
+            if (diffDays === 1) {
+                newStreak += 1; 
+            } else if (diffDays > 1) {
+                newStreak = 1;
+            }
+            
+            if (diffDays >= 1) {
+                 setUserState(prev => ({ 
+                    ...prev, 
+                    lastLoginDate: today, 
+                    streak: newStreak,
+                    water: { ...prev.water, current: 0 } // RESET WATER HERE
+                }));
+            }
+        }
+    };
+
+    // Run immediately on load
+    performDayCheck();
+
+    // Run every minute (to catch midnight while app is open)
+    const interval = setInterval(performDayCheck, 60000);
+
+    // Run when window gains focus (user comes back to tab)
+    const onFocus = () => performDayCheck();
+    window.addEventListener('focus', onFocus);
+
+    return () => {
+        clearInterval(interval);
+        window.removeEventListener('focus', onFocus);
+    };
+  }, [isAuthenticated, userState.lastLoginDate, userState.streak, isLoading]);
 
   const getThemeConfig = () => {
     const themeId = userState.activeCosmetics.theme;
@@ -359,10 +410,32 @@ export const GameProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     }
   };
 
+  const toggleDarkMode = () => {
+      setUserState(prev => ({
+          ...prev,
+          preferences: { 
+              ...prev.preferences, 
+              darkMode: !prev.preferences?.darkMode,
+              pinkMode: false // Disable pink mode if enabling dark mode or just cleanup
+          }
+      }));
+  };
+
+  const togglePinkMode = () => {
+      setUserState(prev => ({
+          ...prev,
+          preferences: {
+              ...prev.preferences,
+              pinkMode: !prev.preferences?.pinkMode,
+              darkMode: false // Disable dark mode if enabling pink mode
+          }
+      }));
+  };
+
   return (
     <GameContext.Provider value={{ 
         userState, daysInApp, isAuthenticated, isLoading, addXp, completeSection, updateStats, updateWater, triggerConfetti, 
-        startChallenge, resetChallenge, logChallengeWeight, deleteChallengeLog, updateProfile, buyItem, equipItem, login, register, logout, completeOnboarding,
+        startChallenge, resetChallenge, logChallengeWeight, deleteChallengeLog, updateProfile, buyItem, equipItem, toggleDarkMode, togglePinkMode, login, register, logout, completeOnboarding,
         themeConfig: getThemeConfig()
     }}>
       {children}

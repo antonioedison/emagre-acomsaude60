@@ -43,6 +43,24 @@ export const SHOP_ITEMS: ShopItem[] = [
     value: { from: '#00B4D8', to: '#48CAE4', text: 'text-brand-darkGreen', bg: 'bg-brand-aqua' }
   },
   {
+    id: 'feature_darkmode',
+    type: 'theme',
+    name: 'Modo Escuro',
+    description: 'Ativa o tema noturno no aplicativo.',
+    price: 700,
+    rarity: 'epic',
+    value: { from: '#1e293b', to: '#0f172a', text: 'text-white', bg: 'bg-slate-800' }
+  },
+  {
+    id: 'feature_pinkmode',
+    type: 'theme',
+    name: 'Modo Rosa',
+    description: 'Deixa o aplicativo com tons de rosa claro.',
+    price: 500,
+    rarity: 'epic',
+    value: { from: '#fce7f3', to: '#fbcfe8', text: 'text-pink-900', bg: 'bg-pink-500' }
+  },
+  {
     id: 'theme_coral',
     type: 'theme',
     name: 'Coral Sunset',
@@ -117,6 +135,26 @@ export const SHOP_ITEMS: ShopItem[] = [
     price: 500,
     rarity: 'legendary',
     value: 'ring-4 ring-cyan-300 shadow-[0_0_20px_rgba(34,211,238,0.8)]'
+  },
+
+  // --- EFEITOS ESPECIAIS (NOVO) ---
+  {
+    id: 'effect_none',
+    type: 'effect',
+    name: 'Sem Efeito',
+    description: 'Visual padrão.',
+    price: 0,
+    rarity: 'common',
+    value: null
+  },
+  {
+    id: 'effect_fire',
+    type: 'effect',
+    name: 'Chama Motivadora',
+    description: 'Uma chama de energia no fundo da tela inicial.',
+    price: 300,
+    rarity: 'rare',
+    value: 'fire'
   }
 ];
 
@@ -417,7 +455,7 @@ export const SECTIONS: ContentSection[] = [
     contentType: 'guide',
     data: {
         sections: [
-             { title: 'O que é Tabata?', text: 'Protocolo de treino de alta intensidade: 20 segundos de exercício intenso seguidos de 10 segundos de descanso, repetido por 8 rounds (4 minutos).' },
+             { title: 'O que é Treino Tabata?', text: 'Protocolo de treino de alta intensidade: 20 segundos de exercício intenso seguidos de 10 segundos de descanso, repetido por 8 rounds (4 minutos).' },
              { title: 'Benefícios', text: 'Queima até 15 calorias por minuto. Aumenta metabolismo por 24-48 horas. Melhora condicionamento cardiovascular.' }
         ]
     }

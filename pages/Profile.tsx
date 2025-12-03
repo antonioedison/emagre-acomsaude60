@@ -1,11 +1,12 @@
+
 import React, { useState } from 'react';
 import { useGame } from '../context/GameContext';
 import { LEVEL_THRESHOLDS, AVATARS, SHOP_ITEMS } from '../constants';
-import { Edit2, TrendingUp, Sparkles, Check, Lock, Store, LogOut, Target, Activity, ThumbsUp, Calendar, X } from 'lucide-react';
+import { Edit2, TrendingUp, Sparkles, Check, Lock, Store, LogOut, Target, Activity, ThumbsUp, Calendar, X, Moon, Sun, Flame, Palette } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 const Profile: React.FC = () => {
-  const { userState, updateProfile, buyItem, equipItem, themeConfig, logout, deleteChallengeLog } = useGame();
+  const { userState, updateProfile, buyItem, equipItem, themeConfig, logout, deleteChallengeLog, toggleDarkMode, togglePinkMode } = useGame();
   const nextLevelXp = LEVEL_THRESHOLDS[userState.level] || 10000;
   
   const [isEditing, setIsEditing] = useState(false);
@@ -57,12 +58,16 @@ const Profile: React.FC = () => {
         case 'theme_default': return { bg: 'bg-brand-aqua', icon: '💧' };
         case 'theme_coral': return { bg: 'bg-slate-500', icon: '🌅' };
         case 'theme_purple': return { bg: 'bg-blue-500', icon: '💜' };
+        case 'feature_darkmode': return { bg: 'bg-slate-800', icon: '🌙' };
+        case 'feature_pinkmode': return { bg: 'bg-pink-400', icon: '🌸' };
         case 'confetti_default': return { bg: 'bg-blue-300', icon: '🎉' };
         case 'confetti_neon': return { bg: 'bg-slate-700', icon: '✨' };
         case 'confetti_rainbow': return { bg: 'bg-blue-500', icon: '🌈' };
         case 'frame_none': return { bg: 'bg-gray-200', icon: '🚫' };
         case 'frame_gold': return { bg: 'bg-purple-500', icon: '👑' };
         case 'frame_diamond': return { bg: 'bg-orange-400', icon: '💎' };
+        case 'effect_none': return { bg: 'bg-gray-200', icon: '🚫' };
+        case 'effect_fire': return { bg: 'bg-orange-600', icon: '🔥' };
         default: return { bg: 'bg-gray-200', icon: '📦' };
     }
   };
@@ -88,10 +93,10 @@ const Profile: React.FC = () => {
   };
 
   return (
-    <div className="p-6 space-y-8 pb-24 bg-slate-50 min-h-screen">
+    <div className="p-6 space-y-8 pb-24 bg-slate-50 dark:bg-slate-900 min-h-screen text-gray-800 dark:text-gray-100">
       
       {/* --- PROFILE HEADER --- */}
-      <div className={`relative bg-white rounded-3xl shadow-lg border border-gray-100 p-6 text-center overflow-visible`}>
+      <div className={`relative bg-white dark:bg-slate-800 rounded-3xl shadow-lg border border-gray-100 dark:border-slate-700 p-6 text-center overflow-visible`}>
          {/* Logout Button */}
          <button 
             onClick={logout}
@@ -114,15 +119,15 @@ const Profile: React.FC = () => {
             <motion.button 
                 whileTap={{ scale: 0.95 }}
                 onClick={() => setShowAvatarSelector(!showAvatarSelector)}
-                className={`w-28 h-28 bg-gray-100 rounded-full flex items-end justify-center shadow-inner relative z-10 overflow-hidden ${frameClass}`}
+                className={`w-28 h-28 bg-gray-100 dark:bg-slate-700 rounded-full flex items-end justify-center shadow-inner relative z-10 overflow-hidden ${frameClass}`}
             >
                 {/* Body */}
                 <div className={`w-24 h-12 rounded-t-3xl ${currentAvatar.shirtColor} absolute bottom-0`}></div>
                 {/* Head */}
                 <div className="text-5xl relative z-10 mb-4 drop-shadow-sm">{currentAvatar.icon}</div>
 
-                <div className="absolute top-2 right-2 bg-white rounded-full p-1.5 shadow-md border border-gray-100 z-20">
-                    <Edit2 size={12} className="text-gray-500" />
+                <div className="absolute top-2 right-2 bg-white dark:bg-slate-600 rounded-full p-1.5 shadow-md border border-gray-100 dark:border-slate-500 z-20">
+                    <Edit2 size={12} className="text-gray-500 dark:text-gray-200" />
                 </div>
             </motion.button>
          </div>
@@ -132,13 +137,13 @@ const Profile: React.FC = () => {
              <motion.div 
                 initial={{ opacity: 0, y: -10 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="bg-white rounded-2xl p-4 shadow-xl border border-gray-100 mb-4 grid grid-cols-4 gap-2"
+                className="bg-white dark:bg-slate-800 rounded-2xl p-4 shadow-xl border border-gray-100 dark:border-slate-700 mb-4 grid grid-cols-4 gap-2"
              >
                  {AVATARS.map(av => (
                      <button
                         key={av.id}
                         onClick={() => handleAvatarSelect(av.id)}
-                        className={`relative aspect-square rounded-2xl overflow-hidden hover:bg-gray-100 transition-colors flex items-end justify-center bg-gray-50 ${userState.avatar === av.id ? 'ring-2 ring-brand-aqua' : ''}`}
+                        className={`relative aspect-square rounded-2xl overflow-hidden hover:bg-gray-100 dark:hover:bg-slate-700 transition-colors flex items-end justify-center bg-gray-50 dark:bg-slate-900 ${userState.avatar === av.id ? 'ring-2 ring-brand-aqua' : ''}`}
                      >
                          <div className={`w-[80%] h-[45%] rounded-t-xl ${av.shirtColor} absolute bottom-0`}></div>
                          <div className="text-3xl relative z-10 mb-2">{av.icon}</div>
@@ -154,7 +159,7 @@ const Profile: React.FC = () => {
                     type="text" 
                     value={tempName}
                     onChange={(e) => setTempName(e.target.value)}
-                    className="w-full text-center font-bold text-lg bg-gray-50 border border-gray-200 rounded-xl p-3 outline-none focus:border-brand-aqua focus:ring-2 focus:ring-brand-aqua/20 text-gray-800 placeholder-gray-400 transition-all"
+                    className="w-full text-center font-bold text-lg bg-gray-50 dark:bg-slate-700 border border-gray-200 dark:border-slate-600 rounded-xl p-3 outline-none focus:border-brand-aqua focus:ring-2 focus:ring-brand-aqua/20 text-gray-800 dark:text-white placeholder-gray-400 transition-all"
                     placeholder="Nome e Sobrenome"
                     autoFocus
                  />
@@ -167,8 +172,8 @@ const Profile: React.FC = () => {
              </div>
          ) : (
              <>
-                <h2 className={`text-2xl font-bold ${themeConfig.text}`}>{userState.name}</h2>
-                <p className="text-gray-500 font-medium text-sm">Nível {userState.level} • {userState.xp} XP</p>
+                <h2 className={`text-2xl font-bold ${themeConfig.text} dark:text-white`}>{userState.name}</h2>
+                <p className="text-gray-500 dark:text-gray-400 font-medium text-sm">Nível {userState.level} • {userState.xp} XP</p>
              </>
          )}
 
@@ -178,7 +183,7 @@ const Profile: React.FC = () => {
                 <span>Nível {userState.level}</span>
                 <span>Nível {userState.level + 1}</span>
             </div>
-            <div className="w-full bg-gray-100 rounded-full h-3 overflow-hidden">
+            <div className="w-full bg-gray-100 dark:bg-slate-700 rounded-full h-3 overflow-hidden">
                 <div 
                     className={`h-full rounded-full transition-all duration-1000 ${themeConfig.bg}`}
                     style={{ width: `${Math.min(100, (userState.xp / nextLevelXp) * 100)}%` }}
@@ -190,19 +195,19 @@ const Profile: React.FC = () => {
       {/* --- STATS GRID --- */}
       <div className="grid grid-cols-2 gap-4">
         {/* Missions Card */}
-        <div className="bg-white p-4 rounded-2xl shadow-sm border border-gray-100 flex flex-col items-center justify-center">
-            <div className="p-3 bg-orange-100 text-orange-600 rounded-full mb-3">
+        <div className="bg-white dark:bg-slate-800 p-4 rounded-2xl shadow-sm border border-gray-100 dark:border-slate-700 flex flex-col items-center justify-center">
+            <div className="p-3 bg-orange-100 dark:bg-orange-900/30 text-orange-600 rounded-full mb-3">
                 <TrendingUp size={24} />
             </div>
-            <div className="text-3xl font-black text-gray-800">{userState.completedSections.length}</div>
-            <div className="text-xs text-gray-500 font-bold uppercase">Missões</div>
+            <div className="text-3xl font-black text-gray-800 dark:text-white">{userState.completedSections.length}</div>
+            <div className="text-xs text-gray-500 dark:text-gray-400 font-bold uppercase">Missões</div>
         </div>
 
         {/* Date Calendars (Replaces Streak) */}
-        <div className="bg-white p-3 rounded-2xl shadow-sm border border-gray-100 flex flex-col justify-center gap-3">
+        <div className="bg-white dark:bg-slate-800 p-3 rounded-2xl shadow-sm border border-gray-100 dark:border-slate-700 flex flex-col justify-center gap-3">
             {/* Start Date */}
-            <div className="flex items-center gap-3 border-b border-gray-50 pb-2">
-                <div className="bg-blue-50 text-blue-600 rounded-lg p-1.5 min-w-[50px] text-center border border-blue-100 shadow-sm">
+            <div className="flex items-center gap-3 border-b border-gray-50 dark:border-slate-700 pb-2">
+                <div className="bg-blue-50 dark:bg-blue-900/30 text-blue-600 rounded-lg p-1.5 min-w-[50px] text-center border border-blue-100 dark:border-blue-800 shadow-sm">
                     <div className="text-[9px] font-bold uppercase leading-none mb-0.5">{installParts.month}</div>
                     <div className="text-xl font-black leading-none">{installParts.day}</div>
                     <div className="text-[9px] font-bold opacity-80 leading-none mt-0.5">{installParts.year}</div>
@@ -214,7 +219,7 @@ const Profile: React.FC = () => {
 
             {/* Current Date */}
             <div className="flex items-center gap-3 pt-0">
-                <div className="bg-emerald-50 text-emerald-600 rounded-lg p-1.5 min-w-[50px] text-center border border-emerald-100 shadow-sm">
+                <div className="bg-emerald-50 dark:bg-emerald-900/30 text-emerald-600 rounded-lg p-1.5 min-w-[50px] text-center border border-emerald-100 dark:border-emerald-800 shadow-sm">
                     <div className="text-[9px] font-bold uppercase leading-none mb-0.5">{todayParts.month}</div>
                     <div className="text-xl font-black leading-none">{todayParts.day}</div>
                     <div className="text-[9px] font-bold opacity-80 leading-none mt-0.5">{todayParts.year}</div>
@@ -228,8 +233,8 @@ const Profile: React.FC = () => {
 
       {/* --- CHALLENGE LOG HISTORY --- */}
       {userState.challenge.logs && userState.challenge.logs.length > 0 && (
-          <div className="bg-white rounded-3xl p-5 shadow-sm border border-gray-100">
-             <h3 className="font-bold text-gray-800 text-sm mb-3 flex items-center gap-2">
+          <div className="bg-white dark:bg-slate-800 rounded-3xl p-5 shadow-sm border border-gray-100 dark:border-slate-700">
+             <h3 className="font-bold text-gray-800 dark:text-white text-sm mb-3 flex items-center gap-2">
                 <Calendar size={16} className="text-brand-aqua" />
                 Histórico do Desafio
              </h3>
@@ -246,11 +251,11 @@ const Profile: React.FC = () => {
                             onClick={() => setSelectedLogIndex(isSelected ? null : i)}
                             className={`flex-shrink-0 flex flex-col items-center gap-2 relative group cursor-pointer transition-all ${isSelected ? 'scale-105' : ''}`}
                          >
-                             <div className={`bg-orange-50 text-orange-600 rounded-lg p-1.5 min-w-[50px] text-center border shadow-sm relative transition-all ${isSelected ? 'border-orange-300 ring-2 ring-orange-100' : 'border-orange-100'}`}>
+                             <div className={`bg-orange-50 dark:bg-orange-900/30 text-orange-600 rounded-lg p-1.5 min-w-[50px] text-center border shadow-sm relative transition-all ${isSelected ? 'border-orange-300 ring-2 ring-orange-100 dark:ring-orange-900' : 'border-orange-100 dark:border-orange-900'}`}>
                                 <div className="text-[9px] font-bold uppercase leading-none mb-0.5">{dateParts.month}</div>
                                 <div className="text-lg font-black leading-none">{dateParts.day}</div>
                              </div>
-                             <span className="text-xs font-bold text-gray-600 bg-gray-100 px-2 py-0.5 rounded-full">{log.weight}kg</span>
+                             <span className="text-xs font-bold text-gray-600 dark:text-gray-300 bg-gray-100 dark:bg-slate-700 px-2 py-0.5 rounded-full">{log.weight}kg</span>
                              
                              {/* Delete Button - Only visible when selected */}
                              <AnimatePresence>
@@ -281,35 +286,35 @@ const Profile: React.FC = () => {
 
       {/* --- USER GOALS & DATA (From Onboarding) --- */}
       {userState.stats && (
-          <div className="bg-white rounded-3xl p-5 shadow-sm border border-gray-100 space-y-4">
-            <h3 className="font-bold text-gray-800 text-lg">Informações</h3>
+          <div className="bg-white dark:bg-slate-800 rounded-3xl p-5 shadow-sm border border-gray-100 dark:border-slate-700 space-y-4">
+            <h3 className="font-bold text-gray-800 dark:text-white text-lg">Informações</h3>
             
             {userState.stats.goal && (
-                <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-xl">
-                    <div className="bg-white p-2 rounded-lg shadow-sm text-brand-aqua"><Target size={20} /></div>
+                <div className="flex items-center gap-3 p-3 bg-gray-50 dark:bg-slate-700 rounded-xl">
+                    <div className="bg-white dark:bg-slate-600 p-2 rounded-lg shadow-sm text-brand-aqua"><Target size={20} /></div>
                     <div>
                         <p className="text-xs font-bold text-gray-400 uppercase">Objetivo</p>
-                        <p className="font-bold text-gray-700">{userState.stats.goal}</p>
+                        <p className="font-bold text-gray-700 dark:text-gray-200">{userState.stats.goal}</p>
                     </div>
                 </div>
             )}
             
             {userState.stats.frequency && (
-                <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-xl">
-                    <div className="bg-white p-2 rounded-lg shadow-sm text-brand-yellow"><Activity size={20} /></div>
+                <div className="flex items-center gap-3 p-3 bg-gray-50 dark:bg-slate-700 rounded-xl">
+                    <div className="bg-white dark:bg-slate-600 p-2 rounded-lg shadow-sm text-brand-yellow"><Activity size={20} /></div>
                     <div>
                         <p className="text-xs font-bold text-gray-400 uppercase">Prática de Exercícios</p>
-                        <p className="font-bold text-gray-700">{userState.stats.frequency}</p>
+                        <p className="font-bold text-gray-700 dark:text-gray-200">{userState.stats.frequency}</p>
                     </div>
                 </div>
             )}
 
             {userState.stats.commitment && (
-                <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-xl">
-                    <div className="bg-white p-2 rounded-lg shadow-sm text-purple-500"><ThumbsUp size={20} /></div>
+                <div className="flex items-center gap-3 p-3 bg-gray-50 dark:bg-slate-700 rounded-xl">
+                    <div className="bg-white dark:bg-slate-600 p-2 rounded-lg shadow-sm text-purple-500"><ThumbsUp size={20} /></div>
                     <div>
                         <p className="text-xs font-bold text-gray-400 uppercase">Fará os exercícios todo dia?</p>
-                        <p className="font-bold text-gray-700">{userState.stats.commitment}</p>
+                        <p className="font-bold text-gray-700 dark:text-gray-200">{userState.stats.commitment}</p>
                     </div>
                 </div>
             )}
@@ -317,15 +322,15 @@ const Profile: React.FC = () => {
             <div className="grid grid-cols-3 gap-3 pt-2">
                 <div className="text-center">
                     <p className="text-xs font-bold text-gray-400 uppercase">Peso</p>
-                    <p className="font-black text-gray-800">{userState.stats.weight} kg</p>
+                    <p className="font-black text-gray-800 dark:text-white">{userState.stats.weight} kg</p>
                 </div>
-                <div className="text-center border-l border-gray-100">
+                <div className="text-center border-l border-gray-100 dark:border-slate-600">
                     <p className="text-xs font-bold text-gray-400 uppercase">Altura</p>
-                    <p className="font-black text-gray-800">{userState.stats.height} cm</p>
+                    <p className="font-black text-gray-800 dark:text-white">{userState.stats.height} cm</p>
                 </div>
-                <div className="text-center border-l border-gray-100">
+                <div className="text-center border-l border-gray-100 dark:border-slate-600">
                     <p className="text-xs font-bold text-gray-400 uppercase">Idade</p>
-                    <p className="font-black text-gray-800">{userState.stats.age}</p>
+                    <p className="font-black text-gray-800 dark:text-white">{userState.stats.age}</p>
                 </div>
             </div>
           </div>
@@ -348,12 +353,13 @@ const Profile: React.FC = () => {
         </div>
 
         {[
-            { id: 'theme', label: 'Temas', icon: '🎨' },
+            { id: 'theme', label: 'Temas & Visual', icon: '🎨' },
             { id: 'confetti', label: 'Confetes', icon: '🎉' },
-            { id: 'frame', label: 'Aros de Nível', icon: '⭐' }
+            { id: 'frame', label: 'Aros de Nível', icon: '⭐' },
+            { id: 'effect', label: 'Efeitos Especiais', icon: '✨' }
         ].map((category) => (
             <div key={category.id} className="mb-8">
-                <h3 className="text-xl font-bold text-gray-800 mb-4 flex items-center gap-2">
+                <h3 className="text-xl font-bold text-gray-800 dark:text-white mb-4 flex items-center gap-2">
                     <span>{category.icon}</span> {category.label}
                 </h3>
 
@@ -363,13 +369,108 @@ const Profile: React.FC = () => {
                         const isOwned = userState.inventory.includes(item.id);
                         const isEquipped = userState.activeCosmetics[item.type] === item.id;
                         const canAfford = userState.coins >= item.price;
+                        
+                        // Special Logic for Dark Mode Item
+                        if (item.id === 'feature_darkmode') {
+                            const isDarkMode = userState.preferences?.darkMode;
+                            return (
+                                <motion.div
+                                    whileTap={{ scale: 0.98 }}
+                                    key={item.id}
+                                    className="bg-white dark:bg-slate-800 rounded-3xl shadow-sm border border-gray-100 dark:border-slate-700 overflow-hidden flex flex-col text-left group relative"
+                                >
+                                    <div className={`h-28 ${visual.bg} flex items-center justify-center text-4xl relative`}>
+                                        {visual.icon}
+                                    </div>
 
+                                    <div className="p-4 flex flex-col flex-1 justify-between">
+                                        <div>
+                                            <span className={`${getRarityBadge(item.rarity)} text-[10px] font-bold px-2 py-0.5 rounded-full uppercase`}>
+                                                {getRarityLabel(item.rarity)}
+                                            </span>
+                                            <h4 className="font-bold text-gray-800 dark:text-white text-sm mt-2 leading-tight">{item.name}</h4>
+                                            <p className="text-xs text-gray-400 mt-1 line-clamp-2">{item.description}</p>
+                                        </div>
+
+                                        <div className="mt-4 flex items-center justify-between">
+                                            {isOwned ? (
+                                                <button 
+                                                    onClick={toggleDarkMode}
+                                                    className={`w-full py-2 rounded-xl text-xs font-bold flex items-center justify-center gap-2 transition-colors ${isDarkMode ? 'bg-slate-900 text-white' : 'bg-gray-200 text-gray-600'}`}
+                                                >
+                                                    {isDarkMode ? <><Moon size={14} /> ATIVADO</> : <><Sun size={14} /> DESLIGADO</>}
+                                                </button>
+                                            ) : (
+                                                <button
+                                                    onClick={() => buyItem(item)}
+                                                    className="w-full flex items-center justify-between gap-1 text-orange-500 font-bold text-sm"
+                                                >
+                                                    <span>© {item.price}</span>
+                                                    <div className={`w-8 h-8 rounded-xl flex items-center justify-center transition-colors ${canAfford ? 'bg-orange-50 text-orange-500' : 'bg-gray-100 text-gray-300'}`}>
+                                                        <Lock size={14} />
+                                                    </div>
+                                                </button>
+                                            )}
+                                        </div>
+                                    </div>
+                                </motion.div>
+                            );
+                        }
+
+                         // Special Logic for Pink Mode Item
+                         if (item.id === 'feature_pinkmode') {
+                            const isPinkMode = userState.preferences?.pinkMode;
+                            return (
+                                <motion.div
+                                    whileTap={{ scale: 0.98 }}
+                                    key={item.id}
+                                    className="bg-white dark:bg-slate-800 rounded-3xl shadow-sm border border-gray-100 dark:border-slate-700 overflow-hidden flex flex-col text-left group relative"
+                                >
+                                    <div className={`h-28 ${visual.bg} flex items-center justify-center text-4xl relative`}>
+                                        {visual.icon}
+                                    </div>
+
+                                    <div className="p-4 flex flex-col flex-1 justify-between">
+                                        <div>
+                                            <span className={`${getRarityBadge(item.rarity)} text-[10px] font-bold px-2 py-0.5 rounded-full uppercase`}>
+                                                {getRarityLabel(item.rarity)}
+                                            </span>
+                                            <h4 className="font-bold text-gray-800 dark:text-white text-sm mt-2 leading-tight">{item.name}</h4>
+                                            <p className="text-xs text-gray-400 mt-1 line-clamp-2">{item.description}</p>
+                                        </div>
+
+                                        <div className="mt-4 flex items-center justify-between">
+                                            {isOwned ? (
+                                                <button 
+                                                    onClick={togglePinkMode}
+                                                    className={`w-full py-2 rounded-xl text-xs font-bold flex items-center justify-center gap-2 transition-colors ${isPinkMode ? 'bg-pink-500 text-white' : 'bg-gray-200 text-gray-600'}`}
+                                                >
+                                                    {isPinkMode ? <><Palette size={14} /> ATIVADO</> : <><Palette size={14} /> DESLIGADO</>}
+                                                </button>
+                                            ) : (
+                                                <button
+                                                    onClick={() => buyItem(item)}
+                                                    className="w-full flex items-center justify-between gap-1 text-orange-500 font-bold text-sm"
+                                                >
+                                                    <span>© {item.price}</span>
+                                                    <div className={`w-8 h-8 rounded-xl flex items-center justify-center transition-colors ${canAfford ? 'bg-orange-50 text-orange-500' : 'bg-gray-100 text-gray-300'}`}>
+                                                        <Lock size={14} />
+                                                    </div>
+                                                </button>
+                                            )}
+                                        </div>
+                                    </div>
+                                </motion.div>
+                            );
+                        }
+
+                        // Standard Items
                         return (
                             <motion.button
                                 whileTap={{ scale: 0.98 }}
                                 key={item.id}
                                 onClick={() => isOwned ? equipItem(item) : buyItem(item)}
-                                className="bg-white rounded-3xl shadow-sm border border-gray-100 overflow-hidden flex flex-col text-left group relative"
+                                className="bg-white dark:bg-slate-800 rounded-3xl shadow-sm border border-gray-100 dark:border-slate-700 overflow-hidden flex flex-col text-left group relative"
                             >
                                 <div className={`h-28 ${visual.bg} flex items-center justify-center text-4xl relative`}>
                                     {visual.icon}
@@ -385,7 +486,7 @@ const Profile: React.FC = () => {
                                         <span className={`${getRarityBadge(item.rarity)} text-[10px] font-bold px-2 py-0.5 rounded-full uppercase`}>
                                             {getRarityLabel(item.rarity)}
                                         </span>
-                                        <h4 className="font-bold text-gray-800 text-sm mt-2 leading-tight">{item.name}</h4>
+                                        <h4 className="font-bold text-gray-800 dark:text-white text-sm mt-2 leading-tight">{item.name}</h4>
                                         <p className="text-xs text-gray-400 mt-1 line-clamp-2">{item.description}</p>
                                     </div>
 
@@ -412,12 +513,12 @@ const Profile: React.FC = () => {
             </div>
         ))}
 
-        <div className="bg-emerald-50 border border-emerald-100 p-6 rounded-3xl text-center shadow-sm">
-            <div className="w-12 h-12 bg-emerald-100 rounded-full flex items-center justify-center mx-auto mb-3 text-emerald-600">
+        <div className="bg-emerald-50 dark:bg-emerald-900/30 border border-emerald-100 dark:border-emerald-800 p-6 rounded-3xl text-center shadow-sm">
+            <div className="w-12 h-12 bg-emerald-100 dark:bg-emerald-800 rounded-full flex items-center justify-center mx-auto mb-3 text-emerald-600 dark:text-emerald-300">
                 <Store size={24} />
             </div>
-            <h3 className="font-bold text-gray-800">Ganhe mais moedas!</h3>
-            <p className="text-xs text-gray-500 mt-2 max-w-[200px] mx-auto">
+            <h3 className="font-bold text-gray-800 dark:text-white">Ganhe mais moedas!</h3>
+            <p className="text-xs text-gray-500 dark:text-gray-400 mt-2 max-w-[200px] mx-auto">
                 Complete missões, faça receitas e treine Tabata para ganhar moedas
             </p>
         </div>
