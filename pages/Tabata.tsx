@@ -1,20 +1,19 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Play, Pause, RefreshCw, AlertTriangle, ChevronDown, ChevronUp } from 'lucide-react';
+import { Play, Pause, RefreshCw, AlertTriangle, ChevronDown, ChevronUp, PlayCircle } from 'lucide-react';
 import { useGame } from '../context/GameContext';
 
-// Atualizado para incluir referência a arquivos de vídeo
-// Nota: O usuário deve adicionar os arquivos .mp4 na pasta public/videos/ com estes nomes
+// Atualizado com links do YouTube conforme solicitado
 const EXERCISES_DATA = [
-  { name: "Jumping Jack", emoji: "🤸", animation: "animate-jumping-jack", video: "polichinelo.mp4" },
-  { name: "Standing Cross Crunches", emoji: "🧘", animation: "animate-twist", video: "abdominais.mp4" },
-  { name: "Alternating Jump", emoji: "🏃", animation: "animate-alt-jump", video: "salto_alternado.mp4" },
-  { name: "Squat jump", emoji: "🦵", animation: "animate-squat-jump", video: "agachamento_salto.mp4" },
-  { name: "Cross Jump", emoji: "🙅", animation: "animate-cross-jump", video: "salto_cruzado.mp4" },
-  { name: "Butt kick", emoji: "🦶", animation: "animate-butt-kick", video: "chute_gluteo.mp4" },
-  { name: "Split Jump", emoji: "🕴️", animation: "animate-split-jump", video: "salto_abertura.mp4" },
-  { name: "Burpee", emoji: "🐸", animation: "animate-burpee", video: "burpee.mp4" }
+  { name: "Jumping Jack", emoji: "🤸", animation: "animate-jumping-jack", link: "https://www.youtube.com/watch?v=XR0xeuK5zBU" },
+  { name: "Standing Cross Crunches", emoji: "🧘", animation: "animate-twist", link: "https://www.youtube.com/shorts/PAYKVg-j1NU" },
+  { name: "Run in Place", emoji: "🏃", animation: "animate-alt-jump", link: "https://www.youtube.com/shorts/S3s7E6Nb3AY" },
+  { name: "Squat jump", emoji: "🦵", animation: "animate-squat-jump", link: "https://www.youtube.com/watch?v=YGGq0AE5Uyc" },
+  { name: "Cross Jump", emoji: "🙅", animation: "animate-cross-jump", link: "https://www.youtube.com/watch?v=6YOo9VDXXRE" },
+  { name: "Butt kick", emoji: "🦶", animation: "animate-butt-kick", link: "https://www.youtube.com/watch?v=D_qMNWY0tHo" },
+  { name: "Split Jump", emoji: "🕴️", animation: "animate-split-jump", link: "https://www.youtube.com/watch?v=y7Iug7eC0dk" },
+  { name: "Burpee", emoji: "🐸", animation: "animate-burpee", link: "https://www.youtube.com/watch?v=5zrN7c6BVw8" }
 ];
 
 const Tabata: React.FC = () => {
@@ -249,13 +248,21 @@ const Tabata: React.FC = () => {
           <div className="bg-white p-4 rounded-3xl shadow-sm border border-gray-100">
             <ul className="space-y-1">
                 {EXERCISES_DATA.map((ex, i) => (
-                    <li key={i} className={`flex items-center gap-2 p-2 rounded-xl border transition-colors ${hasStarted && round === i + 1 ? 'bg-brand-aqua/10 border-brand-aqua ring-1 ring-brand-aqua' : 'bg-gray-50 border-gray-100'}`}>
-                        <span className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0 shadow-sm ${hasStarted && round === i + 1 ? 'bg-brand-aqua text-white' : 'bg-white text-gray-400'}`}>
-                            {hasStarted && round === i + 1 ? ex.emoji : i + 1}
-                        </span>
-                        <span className={`text-xs font-medium ${hasStarted && round === i + 1 ? 'text-brand-darkGreen font-bold' : 'text-gray-700'}`}>
-                            {ex.name}
-                        </span>
+                    <li key={i}>
+                        <a 
+                            href={ex.link} 
+                            target="_blank" 
+                            rel="noopener noreferrer"
+                            className={`flex items-center gap-2 p-2 rounded-xl border transition-colors cursor-pointer hover:bg-gray-50 active:scale-95 ${hasStarted && round === i + 1 ? 'bg-brand-aqua/10 border-brand-aqua ring-1 ring-brand-aqua' : 'bg-gray-50 border-gray-100'}`}
+                        >
+                            <span className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0 shadow-sm ${hasStarted && round === i + 1 ? 'bg-brand-aqua text-white' : 'bg-white text-gray-400'}`}>
+                                {hasStarted && round === i + 1 ? ex.emoji : i + 1}
+                            </span>
+                            <span className={`text-xs font-medium flex-1 ${hasStarted && round === i + 1 ? 'text-brand-darkGreen font-bold' : 'text-gray-700'}`}>
+                                {ex.name}
+                            </span>
+                            <PlayCircle size={14} className="text-gray-300" />
+                        </a>
                     </li>
                 ))}
             </ul>

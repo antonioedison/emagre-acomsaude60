@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useGame } from '../context/GameContext';
-import { User, Lock, Mail, ArrowLeft } from 'lucide-react';
+import { User, Lock, Mail, ArrowLeft, HelpCircle } from 'lucide-react';
 
 const Register: React.FC = () => {
   const navigate = useNavigate();
@@ -11,6 +11,7 @@ const Register: React.FC = () => {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [hint, setHint] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
@@ -20,7 +21,7 @@ const Register: React.FC = () => {
     setLoading(true);
 
     if (!name || !email || !password) {
-      setError('Preencha todos os campos');
+      setError('Preencha todos os campos obrigatórios');
       setLoading(false);
       return;
     }
@@ -32,7 +33,7 @@ const Register: React.FC = () => {
     }
 
     setTimeout(async () => {
-        const success = await register(name, email, password);
+        const success = await register(name, email, password, hint);
         if (success) {
             navigate('/onboarding'); // Redirect to Onboarding
         } else {
@@ -66,6 +67,7 @@ const Register: React.FC = () => {
                         onChange={(e) => setName(e.target.value)}
                         className="w-full pl-10 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-xl outline-none focus:border-brand-aqua focus:ring-2 focus:ring-brand-aqua/20 font-bold text-gray-700 transition-all"
                         placeholder="Seu nome"
+                        required
                     />
                 </div>
             </div>
@@ -80,6 +82,7 @@ const Register: React.FC = () => {
                         onChange={(e) => setEmail(e.target.value)}
                         className="w-full pl-10 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-xl outline-none focus:border-brand-aqua focus:ring-2 focus:ring-brand-aqua/20 font-bold text-gray-700 transition-all"
                         placeholder="seu@email.com"
+                        required
                     />
                 </div>
             </div>
@@ -94,6 +97,21 @@ const Register: React.FC = () => {
                         onChange={(e) => setPassword(e.target.value)}
                         className="w-full pl-10 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-xl outline-none focus:border-brand-aqua focus:ring-2 focus:ring-brand-aqua/20 font-bold text-gray-700 transition-all"
                         placeholder="••••••••"
+                        required
+                    />
+                </div>
+            </div>
+
+            <div className="space-y-1">
+                <label className="text-xs font-bold text-gray-500 uppercase ml-1">Dica da senha (Opcional)</label>
+                <div className="relative">
+                    <HelpCircle className="absolute left-3 top-3.5 text-gray-400" size={20} />
+                    <input 
+                        type="text" 
+                        value={hint}
+                        onChange={(e) => setHint(e.target.value)}
+                        className="w-full pl-10 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-xl outline-none focus:border-brand-aqua focus:ring-2 focus:ring-brand-aqua/20 font-bold text-gray-700 transition-all"
+                        placeholder="Ex: Nome do meu cachorro"
                     />
                 </div>
             </div>

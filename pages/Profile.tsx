@@ -505,7 +505,7 @@ const Profile: React.FC = () => {
                                                     }}
                                                     className={`w-full py-2 rounded-xl text-xs font-bold flex items-center justify-center gap-2 transition-colors ${isEquipped ? 'bg-red-100 text-red-500 hover:bg-red-200' : 'bg-green-100 text-green-600 hover:bg-green-200'}`}
                                                 >
-                                                    {isEquipped ? <><Power size={14} /> DESATIVAR</> : <><Check size={14} /> ATIVAR</>}
+                                                    {isEquipped ? <><Power size={14} /> DESABILITAR</> : <><Check size={14} /> HABILITAR</>}
                                                 </button>
                                             ) : (
                                                 <button

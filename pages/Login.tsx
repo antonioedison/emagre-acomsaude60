@@ -2,20 +2,22 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useGame } from '../context/GameContext';
-import { Zap, Lock, Mail } from 'lucide-react';
+import { Zap, Lock, Mail, HelpCircle } from 'lucide-react';
 
 const Login: React.FC = () => {
   const navigate = useNavigate();
-  const { login } = useGame();
+  const { login, getPasswordHint } = useGame();
   
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
+  const [hintMessage, setHintMessage] = useState('');
   const [loading, setLoading] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
+    setHintMessage('');
     setLoading(true);
 
     if (!email || !password) {
@@ -34,6 +36,21 @@ const Login: React.FC = () => {
         }
         setLoading(false);
     }, 800);
+  };
+
+  const handleShowHint = () => {
+      if (!email) {
+          setError('Digite seu e-mail para ver a dica');
+          return;
+      }
+      const hint = getPasswordHint(email);
+      if (hint) {
+          setHintMessage(`Sua dica: ${hint}`);
+          setError('');
+      } else {
+          setHintMessage('Nenhuma dica encontrada para este e-mail.');
+          setError('');
+      }
   };
 
   return (
@@ -83,6 +100,12 @@ const Login: React.FC = () => {
                 </div>
             )}
 
+            {hintMessage && (
+                <div className="bg-yellow-50 text-yellow-700 text-sm font-bold p-3 rounded-xl text-center flex items-center justify-center gap-2">
+                    <HelpCircle size={16} /> {hintMessage}
+                </div>
+            )}
+
             <button 
                 type="submit" 
                 disabled={loading}
@@ -91,6 +114,16 @@ const Login: React.FC = () => {
                 {loading ? 'Carregando...' : 'ENTRAR'}
             </button>
         </form>
+        
+        <div className="text-center">
+            <button 
+                type="button"
+                onClick={handleShowHint}
+                className="text-sm font-bold text-gray-400 hover:text-brand-darkGreen transition-colors flex items-center justify-center gap-1 mx-auto"
+            >
+                <HelpCircle size={14} /> Dica da senha
+            </button>
+        </div>
 
         <div className="text-center pt-2">
             <p className="text-sm text-gray-500">

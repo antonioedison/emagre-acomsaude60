@@ -26,7 +26,8 @@ interface GameContextType {
   togglePinkMode: () => void;
   themeConfig: any;
   login: (email: string, pass: string) => Promise<boolean>;
-  register: (name: string, email: string, pass: string) => Promise<boolean>;
+  register: (name: string, email: string, pass: string, hint: string) => Promise<boolean>;
+  getPasswordHint: (email: string) => string | null;
   logout: () => void;
 }
 
@@ -147,7 +148,7 @@ export const GameProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     return false;
   };
 
-  const register = async (name: string, email: string, pass: string): Promise<boolean> => {
+  const register = async (name: string, email: string, pass: string, hint: string): Promise<boolean> => {
     const usersStr = localStorage.getItem('app_users');
     const users = usersStr ? JSON.parse(usersStr) : {};
 
@@ -155,8 +156,8 @@ export const GameProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       return false; // User exists
     }
 
-    // Save Creds
-    users[email] = { password: pass, name: name };
+    // Save Creds including Hint
+    users[email] = { password: pass, name: name, hint: hint };
     localStorage.setItem('app_users', JSON.stringify(users));
 
     // Initialize Data
@@ -170,6 +171,16 @@ export const GameProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     setIsAuthenticated(true);
     setIsLoading(false);
     return true;
+  };
+
+  const getPasswordHint = (email: string): string | null => {
+      const usersStr = localStorage.getItem('app_users');
+      const users = usersStr ? JSON.parse(usersStr) : {};
+      
+      if (users[email] && users[email].hint) {
+          return users[email].hint;
+      }
+      return null;
   };
 
   const logout = () => {
@@ -435,7 +446,7 @@ export const GameProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   return (
     <GameContext.Provider value={{ 
         userState, daysInApp, isAuthenticated, isLoading, addXp, completeSection, updateStats, updateWater, triggerConfetti, 
-        startChallenge, resetChallenge, logChallengeWeight, deleteChallengeLog, updateProfile, buyItem, equipItem, toggleDarkMode, togglePinkMode, login, register, logout, completeOnboarding,
+        startChallenge, resetChallenge, logChallengeWeight, deleteChallengeLog, updateProfile, buyItem, equipItem, toggleDarkMode, togglePinkMode, login, register, getPasswordHint, logout, completeOnboarding,
         themeConfig: getThemeConfig()
     }}>
       {children}
