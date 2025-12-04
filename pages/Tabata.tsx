@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Play, Pause, RefreshCw, AlertTriangle, ChevronDown, ChevronUp, PlayCircle } from 'lucide-react';
+import { Play, Pause, RefreshCw, AlertTriangle, ChevronDown, ChevronUp, PlayCircle, X } from 'lucide-react';
 import { useGame } from '../context/GameContext';
 
 // Atualizado com links do YouTube conforme solicitado
@@ -25,6 +25,7 @@ const Tabata: React.FC = () => {
   const [round, setRound] = useState(1);
   const [timeLeft, setTimeLeft] = useState(20);
   const [showWarning, setShowWarning] = useState(false);
+  const [selectedVideo, setSelectedVideo] = useState<string | null>(null);
   
   const totalRounds = 8;
   const workTime = 20;
@@ -126,6 +127,22 @@ const Tabata: React.FC = () => {
     setIsWork(true);
     setRound(1);
     setTimeLeft(workTime);
+  };
+
+  const getYouTubeEmbedUrl = (url: string) => {
+    let videoId = '';
+    // Handle standard watch?v= format
+    const matchStandard = url.match(/[?&]v=([^&]+)/);
+    if (matchStandard) {
+        videoId = matchStandard[1];
+    } else {
+        // Handle shorts/ format
+        const matchShorts = url.match(/\/shorts\/([^/?]+)/);
+        if (matchShorts) {
+            videoId = matchShorts[1];
+        }
+    }
+    return `https://www.youtube.com/embed/${videoId}?autoplay=1&rel=0`;
   };
 
   const maxTime = isWork ? workTime : restTime;
@@ -249,20 +266,18 @@ const Tabata: React.FC = () => {
             <ul className="space-y-1">
                 {EXERCISES_DATA.map((ex, i) => (
                     <li key={i}>
-                        <a 
-                            href={ex.link} 
-                            target="_blank" 
-                            rel="noopener noreferrer"
-                            className={`flex items-center gap-2 p-2 rounded-xl border transition-colors cursor-pointer hover:bg-gray-50 active:scale-95 ${hasStarted && round === i + 1 ? 'bg-brand-aqua/10 border-brand-aqua ring-1 ring-brand-aqua' : 'bg-gray-50 border-gray-100'}`}
+                        <button 
+                            onClick={() => setSelectedVideo(ex.link)}
+                            className={`w-full flex items-center gap-2 p-2 rounded-xl border transition-colors cursor-pointer hover:bg-gray-50 active:scale-95 ${hasStarted && round === i + 1 ? 'bg-brand-aqua/10 border-brand-aqua ring-1 ring-brand-aqua' : 'bg-gray-50 border-gray-100'}`}
                         >
                             <span className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0 shadow-sm ${hasStarted && round === i + 1 ? 'bg-brand-aqua text-white' : 'bg-white text-gray-400'}`}>
                                 {hasStarted && round === i + 1 ? ex.emoji : i + 1}
                             </span>
-                            <span className={`text-xs font-medium flex-1 ${hasStarted && round === i + 1 ? 'text-brand-darkGreen font-bold' : 'text-gray-700'}`}>
+                            <span className={`text-xs font-medium flex-1 text-left ${hasStarted && round === i + 1 ? 'text-brand-darkGreen font-bold' : 'text-gray-700'}`}>
                                 {ex.name}
                             </span>
                             <PlayCircle size={14} className="text-gray-300" />
-                        </a>
+                        </button>
                     </li>
                 ))}
             </ul>
@@ -356,6 +371,46 @@ const Tabata: React.FC = () => {
           </div>
 
       </div>
+
+      {/* VIDEO MODAL */}
+      <AnimatePresence>
+        {selectedVideo && (
+            <motion.div 
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                className="fixed inset-0 z-50 bg-black/90 flex flex-col items-center justify-center p-4 backdrop-blur-sm"
+            >
+                <div className="w-full max-w-lg bg-black rounded-3xl overflow-hidden relative shadow-2xl border border-gray-800">
+                    <button 
+                        onClick={() => setSelectedVideo(null)}
+                        className="absolute top-4 right-4 z-10 bg-white/10 text-white p-2 rounded-full backdrop-blur-md hover:bg-white/20 transition-colors"
+                    >
+                        <X size={24} />
+                    </button>
+
+                    <div className="aspect-[9/16] w-full relative">
+                        <iframe 
+                            src={getYouTubeEmbedUrl(selectedVideo)} 
+                            title="Exercício"
+                            className="absolute inset-0 w-full h-full"
+                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                            allowFullScreen
+                        ></iframe>
+                    </div>
+
+                    <div className="p-4 bg-gray-900">
+                         <button 
+                            onClick={() => setSelectedVideo(null)}
+                            className="w-full bg-red-500 hover:bg-red-600 text-white font-bold py-4 rounded-xl shadow-lg transition-transform active:scale-95 flex items-center justify-center gap-2"
+                        >
+                            <X size={20} /> FECHAR VÍDEO E VOLTAR AO TREINO
+                         </button>
+                    </div>
+                </div>
+            </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 };
