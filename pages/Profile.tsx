@@ -467,6 +467,9 @@ const Profile: React.FC = () => {
                         
                         // Special Logic for Effects (Toggleable)
                         if (item.type === 'effect') {
+                            // Define active color based on item type for visual consistency
+                            const activeColorClass = item.id === 'effect_fire' ? 'bg-orange-500 text-white' : 'bg-rose-500 text-white';
+                            
                             return (
                                 <motion.div
                                     whileTap={{ scale: 0.98 }}
@@ -503,9 +506,9 @@ const Profile: React.FC = () => {
                                                             equipItem(item);
                                                         }
                                                     }}
-                                                    className={`w-full py-2 rounded-xl text-xs font-bold flex items-center justify-center gap-2 transition-colors ${isEquipped ? 'bg-red-100 text-red-500 hover:bg-red-200' : 'bg-green-100 text-green-600 hover:bg-green-200'}`}
+                                                    className={`w-full py-2 rounded-xl text-xs font-bold flex items-center justify-center gap-2 transition-colors ${isEquipped ? activeColorClass : 'bg-gray-200 text-gray-600'}`}
                                                 >
-                                                    {isEquipped ? <><Power size={14} /> DESABILITAR</> : <><Check size={14} /> HABILITAR</>}
+                                                    {isEquipped ? <><Check size={14} /> ATIVADO</> : <><Power size={14} /> DESLIGADO</>}
                                                 </button>
                                             ) : (
                                                 <button
